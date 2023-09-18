@@ -1,79 +1,69 @@
 return {
-    -- Color Theme
-    { 'rose-pine/neovim',         lazy = true },
-    { 'navarasu/onedark.nvim',    lazy = true },
-    { 'sainnhe/everforest',       lazy = true },
-    { 'sainnhe/gruvbox-material', lazy = true },
+  -- Color Theme
+  { 'rose-pine/neovim',         lazy = true },
+  { 'navarasu/onedark.nvim',    lazy = true },
+  { 'sainnhe/everforest',       lazy = true },
+  { 'sainnhe/gruvbox-material', lazy = true },
 
-    -- Git related plugins
-    'tpope/vim-fugitive',
-    -- 'tpope/vim-rhubarb'
-    'lewis6991/gitsigns.nvim',
+  -- Git related plugins
+  'tpope/vim-fugitive',
+  -- 'tpope/vim-rhubarb'
+  'lewis6991/gitsigns.nvim',
 
-    -- Fuzzy Finder (files, lsp, etc)
-    {
-        'nvim-telescope/telescope.nvim',
-        branch = '0.1.x',
-        dependencies = { 'nvim-lua/plenary.nvim' }
-    },
-    -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
-    {
-        'nvim-telescope/telescope-fzf-native.nvim',
-        build = 'make'
-    },
+  -- Fuzzy Finder (files, lsp, etc)
+  {
+    'nvim-telescope/telescope.nvim',
+    branch = '0.1.x',
+    dependencies = { 'nvim-lua/plenary.nvim' }
+  },
+  -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
+  {
+    'nvim-telescope/telescope-fzf-native.nvim',
+    build = 'make'
+  },
 
-    -- Bufferline
-    -- { 'akinsho/bufferline.nvim', tag = "v3.*" }
+  -- Bufferline
+  -- { 'akinsho/bufferline.nvim', tag = "v3.*" }
 
-    -- Treesitter
-    -- 'nvim-treesitter/nvim-treesitter', commit = '50e9b8ce7bd5a032b9d7cddefa1a2dedada9a989'
-    -- { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
-    {
-        'nvim-treesitter/nvim-treesitter',
-        pin = true
-    },
-    'nvim-treesitter/nvim-treesitter-textobjects',
-    'nvim-treesitter/nvim-treesitter-context',
+  -- Treesitter
+  { 'chent11/nvim-treesitter', build = ':TSUpdate', branch = 'spell-checking-for-string' },
+  'nvim-treesitter/nvim-treesitter-textobjects',
+  'nvim-treesitter/nvim-treesitter-context',
 
-    -- LSP Related
-    {
-        'VonHeikemen/lsp-zero.nvim',
-        branch = 'v2.x',
-        dependencies = {
-            -- LSP Support
-            { 'neovim/nvim-lspconfig' },             -- Required
-            { 'williamboman/mason.nvim' },           -- Optional
-            { 'williamboman/mason-lspconfig.nvim' }, -- Optional
-            -- { 'jose-elias-alvarez/null-ls.nvim' },   -- Optional
+  -- LSP Related
+  {
+    'VonHeikemen/lsp-zero.nvim',
+    branch = 'v2.x',
+    dependencies = {
+      -- LSP Support
+      { 'neovim/nvim-lspconfig' },                   -- Required
+      { 'williamboman/mason.nvim' },                 -- Optional
+      { 'williamboman/mason-lspconfig.nvim' },       -- Optional
+      -- { 'jose-elias-alvarez/null-ls.nvim' },   -- Optional
 
-            -- Autocompletion
-            { 'hrsh7th/nvim-cmp' },     -- Required
-            { 'hrsh7th/cmp-nvim-lsp' }, -- Required
-            { 'L3MON4D3/LuaSnip' },     -- Required
-        }
-    },
+      -- Autocompletion
+      { 'hrsh7th/nvim-cmp' },           -- Required
+      { 'hrsh7th/cmp-nvim-lsp' },       -- Required
+      { 'L3MON4D3/LuaSnip' },           -- Required
+    }
+  },
 
-    -- Outline Window
-    {
-        'stevearc/aerial.nvim',
-        opts = {},
-        -- Optional dependencies
-        dependencies = {
-            "nvim-treesitter/nvim-treesitter",
-            "nvim-tree/nvim-web-devicons"
-        },
-    },
+  -- Outline Window
+  {
+    'stevearc/aerial.nvim',
+    opts = {},
+  },
 
-    -- Others
-    'nvim-tree/nvim-web-devicons',
-    'theprimeagen/harpoon',
-    'mbbill/undotree',
-    'nvim-lualine/lualine.nvim',           -- Fancier statusline
-    'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
-    {
-        'numToStr/Comment.nvim',           -- "gc" to comment visual regions/lines
-        config = function()
-            require('Comment').setup()
-        end
-    },
+  -- Others
+  'nvim-tree/nvim-web-devicons',
+  'theprimeagen/harpoon',
+  'mbbill/undotree',
+  'nvim-lualine/lualine.nvim',             -- Fancier statusline
+  'lukas-reineke/indent-blankline.nvim',   -- Add indentation guides even on blank lines
+  {
+    'numToStr/Comment.nvim',               -- "gc" to comment visual regions/lines
+    config = function()
+      require('Comment').setup()
+    end
+  },
 }
