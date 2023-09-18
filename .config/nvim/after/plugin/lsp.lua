@@ -64,9 +64,8 @@ lspconfig.clangd.setup({
     "-j=4",
     "--background-index",
     "--header-insertion=never",
-    -- "--cross-file-rename",
     "--header-insertion-decorators",
-    -- "--malloc-trim",
+    "--malloc-trim",
     -- "--pch-storage=disk",
   },
 })
