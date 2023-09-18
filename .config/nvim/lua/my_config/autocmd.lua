@@ -36,10 +36,10 @@ autocmd({ "BufEnter" }, {
 })
 
 -- Another workaround for the folding issue
-autocmd({ "BufEnter", "BufNew", "BufWinEnter" }, {
-  group = augroup("ts_fold_workaround", { clear = true }),
-  command = "set foldexpr=nvim_treesitter#foldexpr()",
-})
+-- autocmd({ "BufEnter", "BufNew", "BufWinEnter" }, {
+--   group = augroup("ts_fold_workaround", { clear = true }),
+--   command = "set foldexpr=nvim_treesitter#foldexpr()",
+-- })
 
 -- Trim white spaces on save
 autocmd({ "BufWritePre" }, {
