@@ -1,13 +1,13 @@
 if true then
-    return
+  return
 end
 
 local myprint = function(msg)
-    if msg then
-        os.execute('echo "' .. msg .. '" > /tmp/debug-feedback-vim &')
-    else
-        os.execute('echo "' .. 'nil' .. '" > /tmp/debug-feedback-vim &')
-    end
+  if msg then
+    os.execute('echo "' .. msg .. '" > /tmp/debug-feedback-vim &')
+  else
+    os.execute('echo "' .. 'nil' .. '" > /tmp/debug-feedback-vim &')
+  end
 end
 
 local bufferline = require("bufferline")
@@ -17,40 +17,40 @@ local marked_files = {}
 local num_marked_files = harpoon_mark.get_length()
 
 for i = 1, num_marked_files do
-    local marked_file = harpoon_mark.get_marked_file(i)
-    if marked_file then
-        table.insert(marked_files, marked_file.filename)
-    end
+  local marked_file = harpoon_mark.get_marked_file(i)
+  if marked_file then
+    table.insert(marked_files, marked_file.filename)
+  end
 end
 
 for _, filename in ipairs(marked_files) do
-    local bufnr = vim.fn.bufnr(filename)
-    if bufnr == -1 then -- Buffer is not opened
-        vim.api.nvim_command('badd ' .. filename)
-    end
+  local bufnr = vim.fn.bufnr(filename)
+  if bufnr == -1 then   -- Buffer is not opened
+    vim.api.nvim_command('badd ' .. filename)
+  end
 end
 
 local first_marked_file = harpoon_mark.get_marked_file(1)
 if first_marked_file and first_marked_file.filename then
-    vim.api.nvim_command('edit ' .. first_marked_file.filename)
+  vim.api.nvim_command('edit ' .. first_marked_file.filename)
 end
 
 bufferline.setup {
-    options = {
-        numbers = function(opts)
-            return string.format('#%s', opts.id)
-        end,
-        -- custom_filter = function(buf_number, buf_numbers)
-        --     local buf_name = vim.api.nvim_buf_get_name(buf_number)
-        --     local is_marked = harpoon_mark.get_index_of(buf_name)
-        --
-        --     if is_marked then
-        --         return true
-        --     end
-        --
-        --     return false
-        -- end,
-    }
+  options = {
+    numbers = function(opts)
+      return string.format('#%s', opts.id)
+    end,
+    -- custom_filter = function(buf_number, buf_numbers)
+    --     local buf_name = vim.api.nvim_buf_get_name(buf_number)
+    --     local is_marked = harpoon_mark.get_index_of(buf_name)
+    --
+    --     if is_marked then
+    --         return true
+    --     end
+    --
+    --     return false
+    -- end,
+  }
 }
 
 -- Set up the autocmd using vim.api.nvim_create_autocmd

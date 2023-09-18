@@ -35,11 +35,16 @@ autocmd({ "BufEnter" }, {
   command = "normal zx",
 })
 
+-- Another workaround for the folding issue
+autocmd({ "BufEnter", "BufNew", "BufWinEnter" }, {
+  group = augroup("ts_fold_workaround", { clear = true }),
+  command = "set foldexpr=nvim_treesitter#foldexpr()",
+})
+
 -- Trim white spaces on save
-local trimWhiteSpaces = augroup('trimWhiteSpaces', { clear = true })
 autocmd({ "BufWritePre" }, {
   pattern = { "*.c", "*.h", "*.cpp", "*.hh", "*.hpp", "*.py", "*.lua", "*.md", "[mM]akefile" },
-  group = trimWhiteSpaces,
+  group = augroup('trimWhiteSpaces', { clear = true }),
   callback = function(_)
     local save_cursor = vim.fn.getpos(".")
     vim.cmd([[%s/\s\+$//e]])
@@ -47,6 +52,7 @@ autocmd({ "BufWritePre" }, {
   end,
 })
 
+local fileTypeGroups = augroup('trimWhiteSpaces', { clear = true })
 autocmd("FileType", {
   pattern = {
     "vim",
@@ -62,6 +68,7 @@ autocmd("FileType", {
     "sh",
     "zsh",
   },
+  group = fileTypeGroups,
   callback = function()
     vim.opt_local.shiftwidth = 2
     vim.opt_local.softtabstop = 2
@@ -71,6 +78,7 @@ autocmd("FileType", {
 
 autocmd("FileType", {
   pattern = "markdown",
+  group = fileTypeGroups,
   callback = function()
     vim.opt_local.wrap = true
     vim.opt_local.linebreak = true
@@ -80,6 +88,7 @@ autocmd("FileType", {
 
 autocmd({ "BufNew", "BufNewFile", "BufRead" }, {
   pattern = "*.json",
+  group = augroup("json_file_recognition", { clear = true }),
   callback = function()
     vim.bo.filetype = "jsonc"
   end,
