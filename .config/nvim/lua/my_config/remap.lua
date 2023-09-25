@@ -18,8 +18,8 @@ vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
 -- Keep copied content when overwriting
--- vim.keymap.set("x", "<leader>p", [["_dP]])
-vim.keymap.set("x", "p", [["_dP]])
+vim.keymap.set("x", "<leader>p", [["_dP]])
+-- vim.keymap.set("x", "p", [["_dP]])
 
 -- Real delete without affecting current register's content
 vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])

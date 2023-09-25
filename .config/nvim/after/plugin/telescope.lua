@@ -21,17 +21,17 @@ require('telescope').setup {
     mappings = {
       i = {
         ['<c-x>'] = require('telescope.actions').delete_buffer,
-        ['<c-a>'] = function(prompt_bufnr)
-          local entry = require("telescope.actions.state").get_selected_entry()
-          if entry.filename then
-            os.execute('echo "' ..
-              vim.inspect(require("telescope.actions")) .. '" > /tmp/debug-feedback-vim &')
-            entry.indicator = '$'
-            require('telescope.actions').close(prompt_bufnr)
-            require('telescope.builtin').buffers()
-            -- require("harpoon.mark").add_file(filename)
-          end
-        end
+        -- ['<c-a>'] = function(prompt_bufnr)
+        --   local entry = require("telescope.actions.state").get_selected_entry()
+        --   if entry.filename then
+        --     os.execute('echo "' ..
+        --       vim.inspect(require("telescope.actions")) .. '" > /tmp/debug-feedback-vim &')
+        --     entry.indicator = '$'
+        --     require('telescope.actions').close(prompt_bufnr)
+        --     require('telescope.builtin').buffers()
+        --     -- require("harpoon.mark").add_file(filename)
+        --   end
+        -- end
       }
     },
   },
@@ -39,10 +39,21 @@ require('telescope').setup {
     find_files = {
       find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--no-ignore-vcs", "--hidden" }
     },
+  },
+  extensions = {
+    aerial = {
+      -- Display symbols as <root>.<parent>.<symbol>
+      show_nesting = {
+        ['_'] = false, -- This key will be the default
+        json = true,   -- You can set the option for specific filetypes
+        yaml = true,
+      }
+    }
   }
 }
 
 local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<leader>o', require('telescope').load_extension('aerial').aerial, { desc = 'Show [O]utline' })
 vim.keymap.set('n', '<leader>s;', builtin.buffers, { desc = 'Find existing [b]uffers' })
 vim.keymap.set('n', '<leader>/', function()
   builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {

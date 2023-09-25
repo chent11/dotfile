@@ -1,20 +1,7 @@
 local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
 
--- Set fold to normal when in diff view
--- vim.api.nvim_create_autocmd({ "FileType" }, {
---     pattern = "gitcommit",
---     command = "set foldmethod = syntax",
--- })
--- vim.api.nvim_create_autocmd({ "DiffLeave" }, {
---     pattern = { "*" },
---     command = "set foldlevel 99",
--- })
-
 -- Set a cursor line for current buffer only
--- vim.cmd [[au BufEnter * setlocal cursorline]]
--- vim.cmd [[au BufLeave * setlocal nocursorline]]
-
 local cursorlineGroup = augroup('cursorlineGroup', { clear = true })
 autocmd({ "BufEnter" }, {
   pattern = "*",
@@ -52,7 +39,7 @@ autocmd({ "BufWritePre" }, {
   end,
 })
 
-local fileTypeGroups = augroup('trimWhiteSpaces', { clear = true })
+local fileTypeGroups = augroup('fileTypeGroups', { clear = true })
 autocmd("FileType", {
   pattern = {
     "vim",
