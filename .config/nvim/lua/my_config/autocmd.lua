@@ -30,7 +30,7 @@ autocmd({ "BufEnter" }, {
 
 -- Trim white spaces on save
 autocmd({ "BufWritePre" }, {
-  pattern = { "*.c", "*.h", "*.cpp", "*.hh", "*.hpp", "*.py", "*.lua", "*.md", "[mM]akefile" },
+  pattern = { "*" },
   group = augroup('trimWhiteSpaces', { clear = true }),
   callback = function(_)
     local save_cursor = vim.fn.getpos(".")
