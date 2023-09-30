@@ -26,7 +26,7 @@ return {
   -- { 'akinsho/bufferline.nvim', tag = "v3.*" }
 
   -- Treesitter
-  { 'chent11/nvim-treesitter', build = ':TSUpdate', branch = 'spell-checking-for-string' },
+  { 'chent11/nvim-treesitter',             build = ':TSUpdate', branch = 'spell-checking-for-string' },
   'nvim-treesitter/nvim-treesitter-textobjects',
   'nvim-treesitter/nvim-treesitter-context',
 
@@ -36,15 +36,15 @@ return {
     branch = 'v2.x',
     dependencies = {
       -- LSP Support
-      { 'neovim/nvim-lspconfig' },                   -- Required
-      { 'williamboman/mason.nvim' },                 -- Optional
-      { 'williamboman/mason-lspconfig.nvim' },       -- Optional
+      { 'neovim/nvim-lspconfig' },             -- Required
+      { 'williamboman/mason.nvim' },           -- Optional
+      { 'williamboman/mason-lspconfig.nvim' }, -- Optional
       -- { 'jose-elias-alvarez/null-ls.nvim' },   -- Optional
 
       -- Autocompletion
-      { 'hrsh7th/nvim-cmp' },           -- Required
-      { 'hrsh7th/cmp-nvim-lsp' },       -- Required
-      { 'L3MON4D3/LuaSnip' },           -- Required
+      { 'hrsh7th/nvim-cmp' },     -- Required
+      { 'hrsh7th/cmp-nvim-lsp' }, -- Required
+      { 'L3MON4D3/LuaSnip' },     -- Required
     }
   },
 
@@ -58,10 +58,10 @@ return {
   'nvim-tree/nvim-web-devicons',
   'theprimeagen/harpoon',
   'mbbill/undotree',
-  'nvim-lualine/lualine.nvim',             -- Fancier statusline
-  'lukas-reineke/indent-blankline.nvim',   -- Add indentation guides even on blank lines
+  'nvim-lualine/lualine.nvim',                            -- Fancier statusline
+  { 'lukas-reineke/indent-blankline.nvim', main = "ibl", opts = {}  }, -- Add indentation guides even on blank lines
   {
-    'numToStr/Comment.nvim',               -- "gc" to comment visual regions/lines
+    'numToStr/Comment.nvim',                              -- "gc" to comment visual regions/lines
     config = function()
       require('Comment').setup()
     end
