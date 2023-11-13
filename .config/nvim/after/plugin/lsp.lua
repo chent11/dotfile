@@ -12,6 +12,17 @@ lsp.ensure_installed({
 
 lspconfig.lua_ls.setup(lsp.nvim_lua_ls())
 
+-- lsp.set_server_config({
+--   capabilities = {
+--     textDocument = {
+--       foldingRange = {
+--         dynamicRegistration = false,
+--         lineFoldingOnly = true
+--       }
+--     }
+--   }
+-- })
+
 -- Fix Undefined global 'vim'
 lsp.nvim_workspace()
 
