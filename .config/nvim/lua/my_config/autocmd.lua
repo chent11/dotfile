@@ -1,6 +1,13 @@
 local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
 
+-- Set fugitive buffers to read-only and unmodifiable
+autocmd({ "User" }, {
+  pattern = "FugitiveBlob,FugitiveStageBlob",
+  group = augroup('FugitiveBuffers', { clear = true }),
+  command = 'setlocal readonly nomodifiable noswapfile'
+})
+
 -- Set a cursor line for current buffer only
 local cursorlineGroup = augroup('cursorlineGroup', { clear = true })
 autocmd({ "BufEnter" }, {
@@ -13,13 +20,6 @@ autocmd({ "BufLeave" }, {
   pattern = "*",
   group = cursorlineGroup,
   command = 'setlocal nocursorline'
-})
-
--- Workaround to resolve the folding issue when using treesitter folding with the telescope
--- https://github.com/nvim-telescope/telescope.nvim/issues/699
-autocmd({ "BufEnter" }, {
-  pattern = "*",
-  command = "normal zx",
 })
 
 -- Another workaround for the folding issue

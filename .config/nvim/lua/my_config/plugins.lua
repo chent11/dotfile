@@ -26,7 +26,11 @@ return {
   -- { 'akinsho/bufferline.nvim', tag = "v3.*" }
 
   -- Treesitter
-  { 'chent11/nvim-treesitter',             build = ':TSUpdate', branch = 'spell-checking-for-string' },
+  {
+    'chent11/nvim-treesitter',
+    build = ':TSUpdate',
+    branch = 'spell-checking-for-string'
+  },
   'nvim-treesitter/nvim-treesitter-textobjects',
   'nvim-treesitter/nvim-treesitter-context',
 
@@ -54,14 +58,17 @@ return {
     opts = {},
   },
 
+  -- Folding
+  -- { 'kevinhwang91/nvim-ufo', dependencies = 'kevinhwang91/promise-async' },
+
   -- Others
   'nvim-tree/nvim-web-devicons',
   'theprimeagen/harpoon',
   'mbbill/undotree',
-  'nvim-lualine/lualine.nvim',                            -- Fancier statusline
-  { 'lukas-reineke/indent-blankline.nvim', main = "ibl", opts = {}  }, -- Add indentation guides even on blank lines
+  'nvim-lualine/lualine.nvim',                                         -- Fancier statusline
+  { 'lukas-reineke/indent-blankline.nvim', main = "ibl", opts = {} },  -- Add indentation guides even on blank lines
   {
-    'numToStr/Comment.nvim',                              -- "gc" to comment visual regions/lines
+    'numToStr/Comment.nvim',                                           -- "gc" to comment visual regions/lines
     config = function()
       require('Comment').setup()
     end
