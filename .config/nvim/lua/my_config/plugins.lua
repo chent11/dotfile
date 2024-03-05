@@ -25,6 +25,9 @@ return {
   -- Bufferline
   -- { 'akinsho/bufferline.nvim', tag = "v3.*" }
 
+  -- Motion
+  'ggandor/leap.nvim',
+
   -- Treesitter
   {
     'chent11/nvim-treesitter',
@@ -43,7 +46,7 @@ return {
       { 'neovim/nvim-lspconfig' },             -- Required
       { 'williamboman/mason.nvim' },           -- Optional
       { 'williamboman/mason-lspconfig.nvim' }, -- Optional
-      -- { 'jose-elias-alvarez/null-ls.nvim' },   -- Optional
+      { 'nvimtools/none-ls.nvim' },            -- Optional
 
       -- Autocompletion
       { 'hrsh7th/nvim-cmp' },     -- Required
@@ -62,13 +65,15 @@ return {
   -- { 'kevinhwang91/nvim-ufo', dependencies = 'kevinhwang91/promise-async' },
 
   -- Others
+  'github/copilot.vim',
   'nvim-tree/nvim-web-devicons',
   'theprimeagen/harpoon',
   'mbbill/undotree',
-  'nvim-lualine/lualine.nvim',                                         -- Fancier statusline
-  { 'lukas-reineke/indent-blankline.nvim', main = "ibl", opts = {} },  -- Add indentation guides even on blank lines
+  'psf/black',                                                        -- Formatter for Python
+  'nvim-lualine/lualine.nvim',                                        -- Fancier statusline
+  { 'lukas-reineke/indent-blankline.nvim', main = "ibl", opts = {} }, -- Add indentation guides even on blank lines
   {
-    'numToStr/Comment.nvim',                                           -- "gc" to comment visual regions/lines
+    'numToStr/Comment.nvim',                                          -- "gc" to comment visual regions/lines
     config = function()
       require('Comment').setup()
     end

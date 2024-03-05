@@ -13,9 +13,10 @@ require('telescope').setup {
       "--line-number",
       "--column",
       "--smart-case",
-      "--no-ignore-vcs",
+      -- "--no-ignore-vcs",
       "--hidden",
-      "--ignore-file=.fdignore",
+      -- "--ignore-file=.fdignore",
+      "--glob=!.git/",
       "--trim",
     },
     mappings = {
@@ -37,7 +38,8 @@ require('telescope').setup {
   },
   pickers = {
     find_files = {
-      find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--no-ignore-vcs", "--hidden" }
+      -- find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--no-ignore-vcs", "--hidden" }
+      find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--hidden" }
     },
   },
   extensions = {
@@ -54,7 +56,7 @@ require('telescope').setup {
 
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<leader>o', require('telescope').load_extension('aerial').aerial, { desc = 'Show [O]utline' })
-vim.keymap.set('n', '<leader>s;', builtin.buffers, { desc = 'Find existing [b]uffers' })
+vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = 'Find existing [b]uffers' })
 vim.keymap.set('n', '<leader>/', function()
   builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
     winblend = 10,
@@ -87,3 +89,4 @@ vim.keymap.set('n', '<leader>gg', function()
 end, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
+vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = '[G]it [S]tatus' })
