@@ -1,6 +1,34 @@
 local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
 
+-- Add rules for git commit message for copilot
+local function append_diff()
+  -- Get the Git repository root directory
+  local git_dir = vim.fn.FugitiveGitDir()
+  local git_root = vim.fn.fnamemodify(git_dir, ':h')
+
+  -- Get the diff of the staged changes relative to the Git repository root
+  local diff_cmd = 'git -C ' .. git_root .. ' diff --cached'
+  local diff = vim.fn.system(diff_cmd)
+
+  -- Add a comment character to each line of the diff
+  local comment_diff = {}
+  for line in string.gmatch(diff, '[^\r\n]+') do
+    table.insert(comment_diff, '# ' .. line)
+  end
+  local joined_comment_diff = table.concat(comment_diff, '\n')
+
+  -- Append the diff to the commit message
+  vim.api.nvim_buf_set_lines(0, vim.api.nvim_buf_line_count(0), -1, false, vim.fn.split(joined_comment_diff, '\n'))
+end
+local group = augroup('GitCommitAppend', { clear = true })
+autocmd('BufReadPost', {
+  group = group,
+  pattern = 'COMMIT_EDITMSG',
+  callback = append_diff,
+})
+
+
 -- Set fugitive buffers to read-only and unmodifiable
 autocmd({ "User" }, {
   pattern = "FugitiveBlob,FugitiveStageBlob",
@@ -70,6 +98,17 @@ autocmd("FileType", {
     vim.opt_local.wrap = true
     vim.opt_local.linebreak = true
     vim.opt_local.conceallevel = 2
+  end,
+})
+
+autocmd("FileType", {
+  pattern = "kconfig",
+  group = fileTypeGroups,
+  callback = function()
+    -- Delay the execution to ensure it runs after other settings
+    vim.defer_fn(function()
+        vim.opt_local.textwidth = 80
+    end, 0)
   end,
 })
 

@@ -1,3 +1,9 @@
+-- Add filetypes for copilot
+vim.g.copilot_filetypes = {
+  gitcommit = true,
+  markdown = true,
+}
+
 -- Set the leader key to space
 vim.g.mapleader = " "
 

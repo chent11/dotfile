@@ -77,19 +77,26 @@ lspconfig.clangd.setup({
     "--header-insertion=never",
     "--header-insertion-decorators",
     "--malloc-trim",
+    "--log=verbose",
     -- "--pch-storage=disk",
   },
 })
+
+-- vim.lsp.set_log_level("DEBUG")
+vim.lsp.set_log_level("OFF")
+
+require('lspconfig').ruff_lsp.setup {
+}
 
 lspconfig.lua_ls.setup(lsp.nvim_lua_ls())
 
 lsp.setup()
 
 -- local null_ls = require 'null-ls'
---
 -- null_ls.setup {
 --   sources = {
---     null_ls.builtins.formatting.autopep8,
+--     -- null_ls.builtins.formatting.isort,
+--     -- null_ls.builtins.diagnostics.pylint,
 --   },
 -- }
 

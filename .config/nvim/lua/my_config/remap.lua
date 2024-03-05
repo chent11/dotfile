@@ -45,4 +45,8 @@ vim.api.nvim_command('command! TmuxOpenVimConfig silent !tmux new-window -n "nvi
 
 -- Others
 vim.keymap.set("n", "Q", "<nop>")
-vim.keymap.set({ "n", "v" }, "<leader>fmt", vim.lsp.buf.format)
+vim.keymap.set('t', '<Esc>', '<C-\\><C-n>')
+vim.keymap.set({ "n", "v" }, "<leader>fmt", function()
+  vim.lsp.buf.format()
+  print("Code formatted")
+end)
