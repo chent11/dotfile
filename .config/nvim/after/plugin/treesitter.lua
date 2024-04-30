@@ -7,11 +7,28 @@ require('nvim-treesitter.configs').setup {
   highlight = {
     enable = true,
 
-    -- list of language that will be disabled
-    disable = { "make", "xml" },
+    disable = function(lang, bufnr)
+      -- List of languages to disable
+      local disabled_languages = { "asm", "make", "xml", "bitbake" }
+
+      -- Disable if the language is in the disabled list
+      if vim.tbl_contains(disabled_languages, lang) then
+        return true
+      end
+
+      -- Disable if the buffer has more than 10000 lines
+      if vim.api.nvim_buf_line_count(bufnr) > 10000 then
+        print("Buffer is too large, disabling treesitter highlighting")
+        return true
+      end
+
+      -- Otherwise, do not disable
+      return false
+    end,
 
     additional_vim_regex_highlighting = false,
   },
+
   -- indent = { enable = true },
   incremental_selection = {
     enable = true,
@@ -28,7 +45,7 @@ require('nvim-treesitter.configs').setup {
   textobjects = {
     select = {
       enable = true,
-      lookahead = true,       -- Automatically jump forward to textobj, similar to targets.vim
+      lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
       keymaps = {
         -- You can use the capture groups defined in textobjects.scm
         ['aa'] = '@parameter.outer',
@@ -41,7 +58,7 @@ require('nvim-treesitter.configs').setup {
     },
     move = {
       enable = true,
-      set_jumps = true,       -- whether to set jumps in the jumplist
+      set_jumps = true, -- whether to set jumps in the jumplist
       goto_next_start = {
         [']m'] = '@function.outer',
         -- [']]'] = '@class.outer',
