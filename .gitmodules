@@ -1,3 +1,6 @@
 [submodule "ssh_pub_keys"]
 	path = ssh_pub_keys
 	url = git@github.com:chent11/ssh_pub_keys.git
+[submodule ".config/nvim/spell"]
+	path = .config/nvim/spell
+	url = git@github.com:chent11/vim_spell.git
