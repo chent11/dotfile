@@ -16,8 +16,8 @@ require('nvim-treesitter.configs').setup {
         return true
       end
 
-      -- Disable if the buffer has more than 10000 lines
-      if vim.api.nvim_buf_line_count(bufnr) > 10000 then
+      -- Disable if the buffer has more than 100000 lines
+      if vim.api.nvim_buf_line_count(bufnr) > 100000 then
         print("Buffer is too large, disabling treesitter highlighting")
         return true
       end
