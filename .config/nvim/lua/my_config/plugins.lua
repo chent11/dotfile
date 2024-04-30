@@ -22,9 +22,6 @@ return {
     build = 'make'
   },
 
-  -- Bufferline
-  -- { 'akinsho/bufferline.nvim', tag = "v3.*" }
-
   -- Motion
   'ggandor/leap.nvim',
 
@@ -67,7 +64,6 @@ return {
   -- Others
   'github/copilot.vim',
   'nvim-tree/nvim-web-devicons',
-  'theprimeagen/harpoon',
   'mbbill/undotree',
   'psf/black',                                                        -- Formatter for Python
   'nvim-lualine/lualine.nvim',                                        -- Fancier statusline

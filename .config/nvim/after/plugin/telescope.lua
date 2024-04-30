@@ -1,7 +1,6 @@
 -- Enable telescope fzf native, if installed
 require('telescope').load_extension('aerial')
 require('telescope').load_extension('fzf')
-require("telescope").load_extension('harpoon')
 
 require('telescope').setup {
   defaults = {
@@ -20,19 +19,8 @@ require('telescope').setup {
       "--trim",
     },
     mappings = {
-      i = {
+      n = {
         ['<c-x>'] = require('telescope.actions').delete_buffer,
-        -- ['<c-a>'] = function(prompt_bufnr)
-        --   local entry = require("telescope.actions.state").get_selected_entry()
-        --   if entry.filename then
-        --     os.execute('echo "' ..
-        --       vim.inspect(require("telescope.actions")) .. '" > /tmp/debug-feedback-vim &')
-        --     entry.indicator = '$'
-        --     require('telescope.actions').close(prompt_bufnr)
-        --     require('telescope.builtin').buffers()
-        --     -- require("harpoon.mark").add_file(filename)
-        --   end
-        -- end
       }
     },
   },
@@ -86,7 +74,10 @@ end, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>gg', function()
   builtin.grep_string({ default_text = '' })
-end, { desc = '[S]earch by [G]rep' })
+end, { desc = '[G]rep selected text' })
+vim.keymap.set('v', '<leader>gg', function()
+  builtin.grep_string({ default_text = '' })
+end, { desc = '[G]rep selected text' })
 vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
-vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = '[G]it [S]tatus' })
+vim.keymap.set('n', '<leader>df', builtin.git_status, { desc = '[D]iff [F]iles' })

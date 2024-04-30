@@ -21,6 +21,7 @@ local function append_diff()
   -- Append the diff to the commit message
   vim.api.nvim_buf_set_lines(0, vim.api.nvim_buf_line_count(0), -1, false, vim.fn.split(joined_comment_diff, '\n'))
 end
+
 local group = augroup('GitCommitAppend', { clear = true })
 autocmd('BufReadPost', {
   group = group,
@@ -50,11 +51,13 @@ autocmd({ "BufLeave" }, {
   command = 'setlocal nocursorline'
 })
 
--- Another workaround for the folding issue
--- autocmd({ "BufEnter", "BufNew", "BufWinEnter" }, {
---   group = augroup("ts_fold_workaround", { clear = true }),
---   command = "set foldexpr=nvim_treesitter#foldexpr()",
--- })
+autocmd("FileType", {
+  pattern = "asm",
+  group = augroup("disable_ts_fold", { clear = true }),
+  callback = function()
+    vim.o.foldmethod = "manual"
+  end,
+})
 
 -- Trim white spaces on save
 autocmd({ "BufWritePre" }, {
