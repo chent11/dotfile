@@ -27,7 +27,8 @@ return {
 
   -- Treesitter
   {
-    'chent11/nvim-treesitter',
+    -- 'chent11/nvim-treesitter',
+    url = 'git@github.com:chent11/nvim-treesitter.git',
     build = ':TSUpdate',
     branch = 'spell-checking-for-string'
   },

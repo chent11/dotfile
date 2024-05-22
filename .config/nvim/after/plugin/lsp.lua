@@ -72,13 +72,10 @@ end)
 lspconfig.clangd.setup({
   cmd = {
     "clangd",
-    "-j=4",
     "--background-index",
     "--header-insertion=never",
     "--header-insertion-decorators",
-    "--malloc-trim",
     "--log=verbose",
-    -- "--pch-storage=disk",
   },
 })
 
