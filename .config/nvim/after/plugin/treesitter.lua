@@ -9,15 +9,15 @@ require('nvim-treesitter.configs').setup {
 
     disable = function(lang, bufnr)
       -- List of languages to disable
-      local disabled_languages = { "asm", "make", "xml", "bitbake", "tmux" }
+      local disabled_languages = { "asm", "make", "bitbake", "tmux" }
 
       -- Disable if the language is in the disabled list
       if vim.tbl_contains(disabled_languages, lang) then
         return true
       end
 
-      -- Disable if the buffer has more than 10000 lines
-      if vim.api.nvim_buf_line_count(bufnr) > 10000 then
+      -- Disable if the buffer has more than 100000 lines
+      if vim.api.nvim_buf_line_count(bufnr) > 100000 then
         print("Buffer is too large, disabling treesitter highlighting")
         return true
       end
