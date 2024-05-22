@@ -9,7 +9,7 @@ require('nvim-treesitter.configs').setup {
 
     disable = function(lang, bufnr)
       -- List of languages to disable
-      local disabled_languages = { "asm", "make", "xml", "bitbake" }
+      local disabled_languages = { "asm", "make", "xml", "bitbake", "tmux" }
 
       -- Disable if the language is in the disabled list
       if vim.tbl_contains(disabled_languages, lang) then
