@@ -43,6 +43,9 @@ vim.keymap.set("n", "<leader>cw", [[/<C-r><C-w><CR>Ncw]])
 -- Open nvim in a new tmux-window at the configuration folder
 vim.api.nvim_command('command! TmuxOpenVimConfig silent !tmux new-window -n "nvim-config" -c ~/.config/nvim nvim')
 
+-- Toggle fold method between manual and expr
+vim.api.nvim_command('command! ToggleFoldings silent! if &foldmethod == "manual" | set foldmethod=expr | else | set foldmethod=manual | endif')
+
 -- 'dg<' to diffget //2, and 'dg>' to diffget //3
 vim.keymap.set("n", "dg<", ":diffget //2<CR>")
 vim.keymap.set("n", "dg>", ":diffget //3<CR>")

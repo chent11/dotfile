@@ -4,6 +4,7 @@ return {
   { 'navarasu/onedark.nvim',    lazy = true },
   { 'sainnhe/everforest',       lazy = true },
   { 'sainnhe/gruvbox-material', lazy = true },
+  { 'morhetz/gruvbox', lazy = true },
 
   -- Git related plugins
   'tpope/vim-fugitive',
