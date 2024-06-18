@@ -21,13 +21,18 @@ require('telescope').setup {
     mappings = {
       n = {
         ['<c-x>'] = require('telescope.actions').delete_buffer,
-      }
+        ['<c-h>'] = require('telescope.actions').select_horizontal,
+      },
+      i = {
+        ['<c-x>'] = require('telescope.actions').delete_buffer,
+        ['<c-h>'] = require('telescope.actions').select_horizontal,
+      },
     },
   },
   pickers = {
     find_files = {
       -- find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--no-ignore-vcs", "--hidden" }
-      find_command = { "fdfind", "--type", "f", "--strip-cwd-prefix", "--hidden" }
+      find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--hidden" }
     },
   },
   extensions = {
