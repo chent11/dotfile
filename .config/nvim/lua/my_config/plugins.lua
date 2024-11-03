@@ -76,4 +76,8 @@ return {
       require('Comment').setup()
     end
   },
+  {
+    'tzachar/highlight-undo.nvim',
+    keys = { { "u" }, { "<C-r>" } },
+  },
 }
