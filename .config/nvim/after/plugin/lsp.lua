@@ -8,6 +8,7 @@ lsp.ensure_installed({
   'pyright',
   'lua_ls',
   'clangd',
+  'ruff',
 })
 
 lspconfig.lua_ls.setup(lsp.nvim_lua_ls())
@@ -82,11 +83,12 @@ lspconfig.clangd.setup({
   },
 })
 
+vim.lsp.set_log_level("ERROR")
 -- vim.lsp.set_log_level("DEBUG")
-vim.lsp.set_log_level("OFF")
+-- vim.lsp.set_log_level("OFF")
 
-require('lspconfig').ruff_lsp.setup {
-}
+-- require('lspconfig').ruff.setup {
+-- }
 
 lspconfig.lua_ls.setup(lsp.nvim_lua_ls())
 

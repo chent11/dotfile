@@ -14,7 +14,7 @@ require('telescope').setup {
       "--smart-case",
       -- "--no-ignore-vcs",
       "--hidden",
-      -- "--ignore-file=.fdignore",
+      "--ignore-file=.fdignore",
       "--glob=!.git/",
       "--trim",
     },
@@ -64,17 +64,10 @@ vim.keymap.set('v', '<leader>sw', function()
   vim.fn.setreg('v', {})
 
   text = string.gsub(text, "\n", "")
-  -- Escape special characters for grep
-  local specials = "{}\\*()"
-  for i = 1, #specials do
-    local char = string.sub(specials, i, i)
-    text = string.gsub(text, "%" .. char, "\\" .. char)
-  end
-
   if #text <= 0 then
     text = ''
   end
-  builtin.live_grep({ default_text = text })
+  builtin.grep_string({ search = text })
 end, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>gg', function()
