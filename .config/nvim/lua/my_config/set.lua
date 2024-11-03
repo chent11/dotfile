@@ -1,7 +1,9 @@
--- Add filetypes for copilot
+-- Adjust filetypes supported by Copilot
 vim.g.copilot_filetypes = {
   gitcommit = true,
   markdown = true,
+  json = false,
+  yaml = false,
 }
 
 -- Set the leader key to space

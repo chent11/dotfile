@@ -26,7 +26,7 @@ vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])
 
 -- Yank text to system clipboard
 vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
-vim.keymap.set("n", "<leader>Y", [["+Y]])
+vim.keymap.set("n", "<leader>Y", [["+y$]])
 -- vim.keymap.set("n", "<leader>yy", [["+yy]])
 
 -- Quick Fix List
@@ -43,8 +43,8 @@ vim.keymap.set("n", "<leader>cw", [[/<C-r><C-w><CR>Ncw]])
 -- Open nvim in a new tmux-window at the configuration folder
 vim.api.nvim_command('command! TmuxOpenVimConfig silent !tmux new-window -n "nvim-config" -c ~/.config/nvim nvim')
 
--- Toggle fold method between manual and expr
-vim.api.nvim_command('command! ToggleFoldings silent! if &foldmethod == "manual" | set foldmethod=expr | else | set foldmethod=manual | endif')
+-- Toggle fold method between manual and expr with command ToggleFoldings, and print the current fold method
+vim.api.nvim_command('command! ToggleFoldings if &foldmethod == "manual" | set foldmethod=expr | echo "Fold method set to expr" | else | set foldmethod=manual | echo "Fold method set to manual" | endif')
 
 -- 'dg<' to diffget //2, and 'dg>' to diffget //3
 vim.keymap.set("n", "dg<", ":diffget //2<CR>")

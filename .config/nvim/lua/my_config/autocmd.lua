@@ -18,8 +18,30 @@ local function append_diff()
   end
   local joined_comment_diff = table.concat(comment_diff, '\n')
 
-  -- Append the diff to the commit message
-  vim.api.nvim_buf_set_lines(0, vim.api.nvim_buf_line_count(0), -1, false, vim.fn.split(joined_comment_diff, '\n'))
+  -- Define the commit prefix rules as a multi-line string
+  local commit_rules = [[
+Commit Message Guidelines:
+1. **fix:** Patch a bug in your codebase (correlates with PATCH in Semantic Versioning).
+2. **feat:** Introduce a new feature to the codebase (correlates with MINOR in Semantic Versioning).
+3. **BREAKING CHANGE:** Introduce a breaking API change. Add `!` after the type/scope or include a footer `BREAKING CHANGE: <description>`.
+4. **chore:** minor changes that don't fit in any of the above categories.
+5. Additional footers may follow the git trailer format.
+Please write your commit message below following the above guidelines.
+]]
+
+  -- Split the commit_rules string into individual lines and prepend each with a comment character
+  local comment_rules = {}
+  for line in string.gmatch(commit_rules, '[^\r\n]+') do
+    table.insert(comment_rules, '# ' .. line)
+  end
+  -- Combine the commented rules into a single string separated by newlines
+  local joined_comment_rules = table.concat(comment_rules, '\n')
+
+  local full_template = joined_comment_diff .. '\n\n' .. joined_comment_rules
+  -- full_template = full_template .. '\n\n' .. "Commit Message:"
+
+  -- Insert the full template at the start of the buffer
+  vim.api.nvim_buf_set_lines(0, 0, 0, false, vim.split(full_template, '\n'))
 end
 
 local group = augroup('GitCommitAppend', { clear = true })
