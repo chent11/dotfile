@@ -11,11 +11,17 @@ local function append_diff()
   local diff_cmd = 'git -C ' .. git_root .. ' diff --cached'
   local diff = vim.fn.system(diff_cmd)
 
+  -- Diff header and footer
+  local diff_header = 'Here is the diff of changes:'
+  local diff_footer = 'End of diff'
+
   -- Add a comment character to each line of the diff
   local comment_diff = {}
+  table.insert(comment_diff, '# ' .. diff_header)
   for line in string.gmatch(diff, '[^\r\n]+') do
     table.insert(comment_diff, '# ' .. line)
   end
+  table.insert(comment_diff, '# ' .. diff_footer)
   local joined_comment_diff = table.concat(comment_diff, '\n')
 
   -- Define the commit prefix rules as a multi-line string
@@ -23,10 +29,10 @@ local function append_diff()
 Commit Message Guidelines:
 1. **fix:** Patch a bug in your codebase (correlates with PATCH in Semantic Versioning).
 2. **feat:** Introduce a new feature to the codebase (correlates with MINOR in Semantic Versioning).
-3. **BREAKING CHANGE:** Introduce a breaking API change. Add `!` after the type/scope or include a footer `BREAKING CHANGE: <description>`.
+3. **BREAKING CHANGE:** Introduce a breaking change. Add `!` after the type/scope or include a footer `BREAKING CHANGE: <description>`.
 4. **chore:** minor changes that don't fit in any of the above categories.
 5. Additional footers may follow the git trailer format.
-Please write your commit message below following the above guidelines.
+Based on the differences outlined above, please create a commit message that adheres to the provided guidelines. Enclose the commit message within a ``` block.
 ]]
 
   -- Split the commit_rules string into individual lines and prepend each with a comment character
@@ -37,7 +43,11 @@ Please write your commit message below following the above guidelines.
   -- Combine the commented rules into a single string separated by newlines
   local joined_comment_rules = table.concat(comment_rules, '\n')
 
-  local full_template = joined_comment_diff .. '\n\n' .. joined_comment_rules
+  local full_template = joined_comment_diff .. '\n' .. joined_comment_rules
+
+  -- Copy the full template to the clipboard and print a message
+  vim.fn.setreg('+', full_template)
+  vim.api.nvim_out_write('Copied diff to clipboard\n')
   -- full_template = full_template .. '\n\n' .. "Commit Message:"
 
   -- Insert the full template at the start of the buffer
