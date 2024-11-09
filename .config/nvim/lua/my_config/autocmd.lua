@@ -12,8 +12,8 @@ local function append_diff()
   local diff = vim.fn.system(diff_cmd)
 
   -- Diff header and footer
-  local diff_header = 'Here is the diff of changes:'
-  local diff_footer = 'End of diff'
+  local diff_header = '##Here is the diff of changes:'
+  local diff_footer = '##End of diff'
 
   -- Add a comment character to each line of the diff
   local comment_diff = {}
@@ -27,12 +27,15 @@ local function append_diff()
   -- Define the commit prefix rules as a multi-line string
   local commit_rules = [[
 Commit Message Guidelines:
-1. **fix:** Patch a bug in your codebase (correlates with PATCH in Semantic Versioning).
-2. **feat:** Introduce a new feature to the codebase (correlates with MINOR in Semantic Versioning).
-3. **BREAKING CHANGE:** Introduce a breaking change. Add `!` after the type/scope or include a footer `BREAKING CHANGE: <description>`.
-4. **chore:** minor changes that don't fit in any of the above categories.
-5. Additional footers may follow the git trailer format.
-Based on the differences outlined above, please create a commit message that adheres to the provided guidelines. Enclose the commit message within a ``` block.
+- **fix:** Patch a bug in your codebase (correlates with PATCH in Semantic Versioning).
+- **feat:** Introduce a new feature to the codebase (correlates with MINOR in Semantic Versioning).
+- **BREAKING CHANGE:** Introduce a breaking change. Add `!` after the type/scope or include a footer `BREAKING CHANGE: <description>`.
+- **refactor:** Refactor code without changing its external behavior.
+- **chore:** minor changes that don't fit in any of the above categories.
+- **docs:** Documentation only changes.
+- **test:** Adding missing tests or correcting existing tests.
+- Additional footers may follow the git trailer format.
+Based on the differences outlined above, please create a concise commit message that adheres to the provided guidelines. Enclose the commit message within a code block.
 ]]
 
   -- Split the commit_rules string into individual lines and prepend each with a comment character
@@ -47,7 +50,9 @@ Based on the differences outlined above, please create a commit message that adh
 
   -- Copy the full template to the clipboard and print a message
   vim.fn.setreg('+', full_template)
-  vim.api.nvim_out_write('Copied diff to clipboard\n')
+  vim.defer_fn(function()
+    vim.api.nvim_out_write('Copied diff to clipboard\n')
+  end, 100)
   -- full_template = full_template .. '\n\n' .. "Commit Message:"
 
   -- Insert the full template at the start of the buffer

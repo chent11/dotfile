@@ -94,13 +94,16 @@ lspconfig.lua_ls.setup(lsp.nvim_lua_ls())
 
 lsp.setup()
 
--- local null_ls = require 'null-ls'
--- null_ls.setup {
---   sources = {
---     -- null_ls.builtins.formatting.isort,
---     -- null_ls.builtins.diagnostics.pylint,
---   },
--- }
+local null_ls = require("null-ls")
+null_ls.setup {
+  sources = {
+    -- null_ls.builtins.formatting.isort,
+    -- null_ls.builtins.diagnostics.pylint,
+    null_ls.builtins.formatting.prettier.with({
+      filetypes = { "yaml" }, -- only enable Prettier for YAML files
+    }),
+  },
+}
 
 vim.diagnostic.config({
   virtual_text = true
