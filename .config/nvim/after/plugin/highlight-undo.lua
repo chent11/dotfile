@@ -6,7 +6,7 @@ require('highlight-undo').setup({
       desc = "a description",
       hlgroup = 'HighlightUndo',
       mode = 'n',
-      lhs = 'lhs',
+      lhs = 'flhs',
       rhs = 'optional, can be nil',
       opts = {
         -- same as opts to vim.keymap.set. if rhs is nil, there should be a
