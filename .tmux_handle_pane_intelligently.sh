@@ -48,7 +48,7 @@ if [ "$mode" == "join" ]; then
   # Join pane in the chosen direction
   tmux join-pane -$split_direction -s "$window_index"
 elif [ "$mode" == "split" ]; then
-  tmux split-window -$split_direction
+  tmux split-window -$split_direction -c "#{pane_current_path}"
 else
   echo "Error: Invalid mode specified. Use 'join' or 'split'."
   usage

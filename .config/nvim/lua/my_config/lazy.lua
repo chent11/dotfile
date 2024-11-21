@@ -1,1 +1,4 @@
-require("lazy").setup("my_config.plugins")
+require("lazy").setup({
+    spec = require("my_config.plugins"),
+    checker = { enabled = false },
+})

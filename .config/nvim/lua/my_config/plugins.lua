@@ -67,7 +67,6 @@ return {
   'github/copilot.vim',
   'nvim-tree/nvim-web-devicons',
   'mbbill/undotree',
-  'psf/black',                                                        -- Formatter for Python
   'nvim-lualine/lualine.nvim',                                        -- Fancier statusline
   { 'lukas-reineke/indent-blankline.nvim', main = "ibl", opts = {} }, -- Add indentation guides even on blank lines
   {

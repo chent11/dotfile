@@ -82,7 +82,8 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git gitfast golang docker kubectl)
+GIT_COMPLETION_CHECKOUT_NO_GUESS=1 # git switch to local branch only
+plugins=(gitfast golang docker kubectl zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -154,3 +155,6 @@ setopt SHARE_HISTORY             # Share history between all sessions.
 # fnm
 export PATH="/home/chentao/.local/share/fnm:$PATH"
 eval "`fnm env`"
+
+# autoflowsetup zsh completion
+eval "$(register-python-argcomplete autoflowsetup)"
