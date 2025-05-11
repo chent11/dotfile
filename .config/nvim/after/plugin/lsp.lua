@@ -89,16 +89,25 @@ local handlers = {
 }
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
-for _, lsp in ipairs(servers) do
-  lspconfig[lsp].setup({
+-- Helper function for LSP setup
+local function setup_lsp(server_name, custom_config)
+  local default_config = {
     handlers = handlers,
     on_attach = on_attach,
     capabilities = capabilities,
-  })
+  }
+
+  local final_config = vim.tbl_deep_extend("force", default_config, custom_config or {})
+  lspconfig[server_name].setup(final_config)
+end
+
+-- Setup servers from the list
+for _, lsp in ipairs(servers) do
+  setup_lsp(lsp)
 end
 
 -- Lua LSP
-lspconfig.lua_ls.setup({
+setup_lsp('lua_ls', {
   settings = {
     Lua = {
       diagnostics = {
@@ -113,7 +122,7 @@ lspconfig.lua_ls.setup({
 })
 
 -- C LSP
-lspconfig.clangd.setup({
+setup_lsp('clangd', {
   cmd = {
     "clangd",
     "--log=info",

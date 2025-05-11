@@ -34,7 +34,7 @@ return {
     branch = 'spell-checking-for-string'
   },
   'nvim-treesitter/nvim-treesitter-textobjects',
-  'nvim-treesitter/nvim-treesitter-context',
+  -- 'nvim-treesitter/nvim-treesitter-context',
 
   -- LSP Related
   { 'neovim/nvim-lspconfig' },
@@ -46,6 +46,7 @@ return {
   { 'hrsh7th/nvim-cmp' },
   { 'hrsh7th/cmp-nvim-lsp' },
   { 'L3MON4D3/LuaSnip' },
+  { 'tpope/vim-sleuth' }, -- Detect tabstop and shiftwidth automatically
 
   -- Outline Window
   {

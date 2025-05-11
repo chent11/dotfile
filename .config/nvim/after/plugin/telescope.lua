@@ -2,22 +2,49 @@
 require('telescope').load_extension('aerial')
 require('telescope').load_extension('fzf')
 
+local function make_ignore_files()
+  local files = {}
+  if vim.fn.filereadable(".gitignore") == 1 then
+    table.insert(files, ".gitignore")
+  end
+  if vim.fn.filereadable(".fdignore") == 1 then
+    table.insert(files, ".fdignore")
+  end
+  return files
+end
+
+local vimgrep_args = {
+  "rg",
+  "--color=never",
+  "--no-heading",
+  "--with-filename",
+  "--line-number",
+  "--column",
+  "--smart-case",
+  "--hidden",
+  "--glob=!.git/",
+  "--trim",
+  "--no-ignore-vcs",
+}
+for _, f in ipairs(make_ignore_files()) do
+  table.insert(vimgrep_args, "--ignore-file=" .. f)
+end
+
+local find_files_cmd = {
+  "fd",
+  "--type",
+  "f",
+  "--strip-cwd-prefix",
+  "--hidden",
+  "--no-ignore-vcs",
+}
+for _, f in ipairs(make_ignore_files()) do
+  table.insert(find_files_cmd, "--ignore-file=" .. f)
+end
+
 require('telescope').setup {
   defaults = {
-    vimgrep_arguments = {
-      "rg",
-      "--color=never",
-      "--no-heading",
-      "--with-filename",
-      "--line-number",
-      "--column",
-      "--smart-case",
-      -- "--no-ignore-vcs",
-      "--hidden",
-      "--ignore-file=.fdignore",
-      "--glob=!.git/",
-      "--trim",
-    },
+    vimgrep_arguments = vimgrep_args,
     mappings = {
       n = {
         ['<c-x>'] = require('telescope.actions').delete_buffer,
@@ -31,8 +58,7 @@ require('telescope').setup {
   },
   pickers = {
     find_files = {
-      -- find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--no-ignore-vcs", "--hidden" }
-      find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--hidden" }
+      find_command = find_files_cmd,
     },
   },
   extensions = {
