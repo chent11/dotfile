@@ -158,3 +158,8 @@ eval "`fnm env`"
 
 # autoflowsetup zsh completion
 eval "$(register-python-argcomplete autoflowsetup)"
+
+export EDITOR=vim
+
+# command not found suggestion
+source /etc/zsh_command_not_found

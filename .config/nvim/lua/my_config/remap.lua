@@ -50,6 +50,13 @@ vim.api.nvim_command('command! ToggleFoldings if &foldmethod == "manual" | set f
 vim.keymap.set("n", "dg<", ":diffget //2<CR>")
 vim.keymap.set("n", "dg>", ":diffget //3<CR>")
 
+-- Toggle Copilot on/off in the current buffer and restart the LSP
+vim.keymap.set("n", "<leader>cp", function()
+  vim.b.copilot_enabled = not vim.b.copilot_enabled
+  vim.cmd("LspRestart")
+  print("Copilot is " .. (vim.b.copilot_enabled and "enabled" or "disabled"))
+end)
+
 -- Others
 vim.keymap.set("n", "Q", "<nop>")
 vim.keymap.set('t', '<Esc>', '<C-\\><C-n>')

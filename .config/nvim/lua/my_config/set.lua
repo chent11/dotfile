@@ -1,9 +1,20 @@
 -- Adjust filetypes supported by Copilot
 vim.g.copilot_filetypes = {
+  ['*'] = false,
   gitcommit = true,
   markdown = true,
-  json = false,
-  yaml = false,
+  c = true,
+  cpp = true,
+  lua = true,
+  vim = true,
+  xml = true,
+  python = true,
+  javascript = true,
+  java = true,
+  typescript = true,
+  rust = true,
+  go = true,
+  gdscript = true,
 }
 
 -- Set the leader key to space
