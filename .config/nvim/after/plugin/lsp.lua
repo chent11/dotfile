@@ -1,7 +1,8 @@
 local servers = {
   'pyright',
   'clangd',
-  'ruff'
+  'ruff',
+  'lua_ls',
 }
 
 local lspconfig = require('lspconfig')
@@ -20,7 +21,10 @@ lspconfig_defaults.capabilities = vim.tbl_deep_extend(
 
 
 require('mason').setup({})
-require('mason-lspconfig').setup({ ensure_installed = servers })
+require('mason-lspconfig').setup({
+  ensure_installed = servers,
+  automatic_enable = false,
+})
 
 local cmp = require('cmp')
 local cmp_mappings = {
@@ -60,11 +64,12 @@ local on_attach = function(_, bufnr)
   -- vim.keymap.set("n", "gr", function() vim.lsp.buf.references() end, opts)
   vim.keymap.set("n", "gr", function() require('telescope.builtin').lsp_references() end, opts)
   vim.keymap.set("n", "gI", function() vim.lsp.buf.implementation() end, opts)
-  vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
+  vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded" }) end, opts)
+  vim.keymap.set("n", "<leader>K", function() vim.lsp.buf.signature_help({ border = "rounded" }) end, opts)
   vim.keymap.set("n", "<leader>lo", function() require('telescope.builtin').lsp_document_symbols() end, opts)
   vim.keymap.set("n", "<C-w>d", function() vim.diagnostic.open_float(); vim.diagnostic.open_float() end, opts)
-  vim.keymap.set("n", "]d", function() vim.diagnostic.goto_next() end, opts)
-  vim.keymap.set("n", "[d", function() vim.diagnostic.goto_prev() end, opts)
+  vim.keymap.set("n", "]d", function() vim.diagnostic.jump({count = 1, float = true}) end, opts)
+  vim.keymap.set("n", "[d", function() vim.diagnostic.jump({count = -1, float = true}) end, opts)
   vim.keymap.set("n", "<leader>ca", function() vim.lsp.buf.code_action() end, opts)
   vim.keymap.set("n", "<leader>rn", function() vim.lsp.buf.rename() end, opts)
   vim.keymap.set("i", "<C-k>", function() vim.lsp.buf.signature_help() end, opts)
@@ -82,17 +87,10 @@ vim.diagnostic.config({
   },
 })
 
--- LSP handlers with rounded borders
-local handlers = {
-  ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
-  ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
-}
-
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 -- Helper function for LSP setup
 local function setup_lsp(server_name, custom_config)
   local default_config = {
-    handlers = handlers,
     on_attach = on_attach,
     capabilities = capabilities,
   }
@@ -125,7 +123,7 @@ setup_lsp('lua_ls', {
 setup_lsp('clangd', {
   cmd = {
     "clangd",
-    "--log=info",
+    "--log=error",
     "--background-index",
     "--header-insertion=never",
     "--header-insertion-decorators",

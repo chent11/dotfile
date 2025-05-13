@@ -51,7 +51,7 @@ Based on the differences outlined above, please create a concise commit message 
   -- Copy the full template to the clipboard and print a message
   vim.fn.setreg('+', full_template)
   vim.defer_fn(function()
-    vim.api.nvim_out_write('Copied diff to clipboard\n')
+    vim.notify("Copied diff to clipboard", vim.log.levels.INFO)
   end, 100)
   -- full_template = full_template .. '\n\n' .. "Commit Message:"
 
