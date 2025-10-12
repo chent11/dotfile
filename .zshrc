@@ -83,7 +83,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 GIT_COMPLETION_CHECKOUT_NO_GUESS=1 # git switch to local branch only
-plugins=(gitfast golang docker kubectl zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(gitfast golang docker kubectl zsh-autosuggestions zsh-syntax-highlighting multipass)
 
 source $ZSH/oh-my-zsh.sh
 
