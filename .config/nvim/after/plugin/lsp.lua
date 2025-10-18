@@ -1,37 +1,20 @@
 local servers = {
   'pyright',
   'clangd',
-  'ruff',
+  -- 'ruff',
   'lua_ls',
 }
-
-local lspconfig = require('lspconfig')
 
 -- Reserve a space in the gutter
 vim.opt.signcolumn = 'yes'
 
--- Add cmp_nvim_lsp capabilities settings to lspconfig
--- This should be executed before you configure any language server
-local lspconfig_defaults = lspconfig.util.default_config
-lspconfig_defaults.capabilities = vim.tbl_deep_extend(
-  'force',
-  lspconfig_defaults.capabilities,
-  require('cmp_nvim_lsp').default_capabilities()
-)
-
-
-require('mason').setup({})
-require('mason-lspconfig').setup({
-  ensure_installed = servers,
-  automatic_enable = false,
-})
-
+-- nvim-cmp setup
 local cmp = require('cmp')
 local cmp_mappings = {
   ['<C-p>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
   ['<C-n>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
   ['<C-y>'] = cmp.mapping.confirm({ select = true }),
-  ["<C-Space>"] = cmp.mapping.complete(),
+  ['<C-Space>'] = cmp.mapping.complete(),
   ['<Tab>'] = nil,
   ['<S-Tab>'] = nil,
 }
@@ -57,11 +40,10 @@ for type, icon in pairs(signs) do
   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
 end
 
+-- Keymaps on attach
 local on_attach = function(_, bufnr)
   local opts = { buffer = bufnr, remap = false }
-
   vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-  -- vim.keymap.set("n", "gr", function() vim.lsp.buf.references() end, opts)
   vim.keymap.set("n", "gr", function() require('telescope.builtin').lsp_references() end, opts)
   vim.keymap.set("n", "gI", function() vim.lsp.buf.implementation() end, opts)
   vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded" }) end, opts)
@@ -75,7 +57,7 @@ local on_attach = function(_, bufnr)
   vim.keymap.set("i", "<C-k>", function() vim.lsp.buf.signature_help() end, opts)
 end
 
--- Configure diagnostic floating window
+-- Diagnostics UI
 vim.diagnostic.config({
   virtual_text = {
     severity = {
@@ -87,25 +69,16 @@ vim.diagnostic.config({
   },
 })
 
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
--- Helper function for LSP setup
-local function setup_lsp(server_name, custom_config)
-  local default_config = {
-    on_attach = on_attach,
-    capabilities = capabilities,
-  }
+-- Global defaults for all LSP clients
+vim.lsp.config('*', {
+  on_attach = on_attach,
+  capabilities = require('cmp_nvim_lsp').default_capabilities(),
+})
 
-  local final_config = vim.tbl_deep_extend("force", default_config, custom_config or {})
-  lspconfig[server_name].setup(final_config)
-end
+-- Per-server tweaks
 
--- Setup servers from the list
-for _, lsp in ipairs(servers) do
-  setup_lsp(lsp)
-end
-
--- Lua LSP
-setup_lsp('lua_ls', {
+-- Lua
+vim.lsp.config('lua_ls', {
   settings = {
     Lua = {
       diagnostics = {
@@ -119,8 +92,8 @@ setup_lsp('lua_ls', {
   },
 })
 
--- C LSP
-setup_lsp('clangd', {
+-- C/C++
+vim.lsp.config('clangd', {
   cmd = {
     "clangd",
     "--log=error",
@@ -131,18 +104,28 @@ setup_lsp('clangd', {
   },
 })
 
+-- Mason (installer) + mason-lspconfig (optional QoL)
+require('mason').setup({})
+require('mason-lspconfig').setup({
+  ensure_installed = servers,
+  automatic_enable = false, -- we call vim.lsp.enable() ourselves below
+})
+
+-- Enable all configured servers
+vim.lsp.enable(servers)
+
+-- Logging
 vim.lsp.set_log_level("ERROR")
 -- vim.lsp.set_log_level("DEBUG")
 -- vim.lsp.set_log_level("OFF")
 
+-- null-ls / none-ls (formatters/linters)
 local null_ls = require("null-ls")
-null_ls.setup {
+null_ls.setup({
   sources = {
     -- null_ls.builtins.formatting.isort,
     -- null_ls.builtins.diagnostics.pylint,
-    -- null_ls.builtins.formatting.black.with({
-    --   filetypes = { "python" },
-    -- }),
+    -- null_ls.builtins.formatting.black.with({ filetypes = { "python" } }),
     null_ls.builtins.formatting.prettier.with({
       filetypes = { "yaml", "json", "markdown" },
     }),
@@ -150,6 +133,6 @@ null_ls.setup {
       filetypes = { "Dockerfile" },
     }),
   },
-}
+})
 
 -- vim.highlight.priorities.semantic_tokens = 90
