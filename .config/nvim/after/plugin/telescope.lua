@@ -37,6 +37,8 @@ local find_files_cmd = {
   "--strip-cwd-prefix",
   "--hidden",
   "--no-ignore-vcs",
+  "--exclude",
+  ".git",
 }
 for _, f in ipairs(make_ignore_files()) do
   table.insert(find_files_cmd, "--ignore-file=" .. f)
