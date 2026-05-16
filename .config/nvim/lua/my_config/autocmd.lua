@@ -15,6 +15,15 @@ local function append_diff()
   local diff_header = '##Here is the diff of changes:'
   local diff_footer = '##End of diff'
 
+  -- Count lines and skip if too large
+  local line_count = select(2, diff:gsub('\n', '\n'))
+  if line_count > 10000 then
+    vim.defer_fn(function()
+      vim.notify("Diff too large (" .. line_count .. " lines), skipping commit rules", vim.log.levels.WARN)
+    end, 100)
+    return
+  end
+
   -- Add a comment character to each line of the diff
   local comment_diff = {}
   table.insert(comment_diff, '# ' .. diff_header)
