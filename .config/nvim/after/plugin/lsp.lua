@@ -28,21 +28,27 @@ cmp.setup({
 })
 
 -- Keymaps on attach
-local on_attach = function(_, bufnr)
-  local opts = { buffer = bufnr, remap = false }
-  vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-  vim.keymap.set("n", "gr", function() require('telescope.builtin').lsp_references() end, opts)
-  vim.keymap.set("n", "gI", function() vim.lsp.buf.implementation() end, opts)
-  vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded" }) end, opts)
-  vim.keymap.set("n", "<leader>K", function() vim.lsp.buf.signature_help({ border = "rounded" }) end, opts)
-  vim.keymap.set("n", "<leader>lo", function() require('telescope.builtin').lsp_document_symbols() end, opts)
-  vim.keymap.set("n", "<C-w>d", function() vim.diagnostic.open_float(); vim.diagnostic.open_float() end, opts)
-  vim.keymap.set("n", "]d", function() vim.diagnostic.jump({count = 1, float = true}) end, opts)
-  vim.keymap.set("n", "[d", function() vim.diagnostic.jump({count = -1, float = true}) end, opts)
-  vim.keymap.set("n", "<leader>ca", function() vim.lsp.buf.code_action() end, opts)
-  vim.keymap.set("n", "<leader>rn", function() vim.lsp.buf.rename() end, opts)
-  vim.keymap.set("i", "<C-k>", function() vim.lsp.buf.signature_help() end, opts)
-end
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup("UserLspKeymaps", { clear = true }),
+  callback = function(args)
+    local bufnr = args.buf
+    local opts = { buffer = bufnr, remap = false, silent = true }
+
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+    vim.keymap.set("n", "gr", function() require("telescope.builtin").lsp_references() end, opts)
+    vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts)
+    vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded" }) end, opts)
+    vim.keymap.set("n", "<leader>K", function() vim.lsp.buf.signature_help({ border = "rounded" }) end, opts)
+    vim.keymap.set("n", "<leader>lo", function() require("telescope.builtin").lsp_document_symbols() end, opts)
+    vim.keymap.set("n", "<C-w>d", function() vim.diagnostic.open_float() end, opts)
+    vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, opts)
+    vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, opts)
+    vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+    vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, opts)
+  end,
+})
 
 -- Diagnostics UI
 vim.diagnostic.config({
@@ -66,7 +72,6 @@ vim.diagnostic.config({
 
 -- Global defaults for all LSP clients
 vim.lsp.config('*', {
-  on_attach = on_attach,
   capabilities = require('cmp_nvim_lsp').default_capabilities(),
 })
 
@@ -88,6 +93,7 @@ vim.lsp.config('lua_ls', {
 })
 
 -- C/C++
+local clangd_markers = { ".clangd", "compile_commands.json", "compile_flags.txt", ".git" }
 vim.lsp.config('clangd', {
   cmd = {
     "clangd",
@@ -97,6 +103,20 @@ vim.lsp.config('clangd', {
     "--header-insertion-decorators",
     "--offset-encoding=utf-16",
   },
+
+  -- Skip non-file buffers (oil://, scp://, fugitive://, etc.)
+  root_dir = function(bufnr, on_dir)
+    local uri = vim.uri_from_bufnr(bufnr)
+    if not vim.startswith(uri, "file://") then
+      return
+    end
+
+    local fname = vim.api.nvim_buf_get_name(bufnr)
+    local root = vim.fs.root(fname, clangd_markers)
+
+    -- allow single-file mode by falling back to file's directory
+    on_dir(root or vim.fs.dirname(fname))
+  end,
 })
 
 -- Mason (installer) + mason-lspconfig (optional QoL)
@@ -107,7 +127,11 @@ require('mason-lspconfig').setup({
 })
 
 -- Enable all configured servers
-vim.lsp.enable(servers)
+for _, s in ipairs(servers) do
+  if not vim.lsp.is_enabled(s) then
+    vim.lsp.enable(s)
+  end
+end
 
 -- Logging
 vim.lsp.set_log_level("ERROR")

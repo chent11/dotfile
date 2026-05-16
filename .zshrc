@@ -163,3 +163,6 @@ export EDITOR=vim
 
 # command not found suggestion
 source /etc/zsh_command_not_found
+
+# rust
+source "$HOME/.cargo/env"
