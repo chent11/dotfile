@@ -13,6 +13,11 @@ if [ -d "$HOME/.local/bin" ] ; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
 
+# Set /snap/bin to PATH if it exists
+if [ -d "/snap/bin" ] ; then
+    export PATH="/snap/bin:$PATH"
+fi
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -155,9 +160,6 @@ setopt SHARE_HISTORY             # Share history between all sessions.
 # fnm
 export PATH="/home/chentao/.local/share/fnm:$PATH"
 eval "`fnm env`"
-
-# autoflowsetup zsh completion
-eval "$(register-python-argcomplete autoflowsetup)"
 
 export EDITOR=vim
 
