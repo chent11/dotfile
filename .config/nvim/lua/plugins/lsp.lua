@@ -1,4 +1,10 @@
 local servers = {
+  "pyright",
+  "clangd",
+  "lua_ls",
+}
+
+local mason_servers = {
   "copilot",
   "pyright",
   "clangd",
@@ -99,36 +105,6 @@ return {
         capabilities = capabilities,
       })
 
-      vim.lsp.config("copilot", {
-        cmd = { "copilot-language-server", "--stdio" },
-        filetypes = {
-          "gitcommit",
-          "markdown",
-          "c",
-          "cpp",
-          "lua",
-          "vim",
-          "xml",
-          "python",
-          "javascript",
-          "java",
-          "typescript",
-          "rust",
-          "go",
-          "gdscript",
-        },
-        init_options = {
-          editorInfo = {
-            name = "Neovim",
-            version = tostring(vim.version()),
-          },
-          editorPluginInfo = {
-            name = "Neovim",
-            version = tostring(vim.version()),
-          },
-        },
-      })
-
       vim.lsp.config("lua_ls", {
         settings = {
           Lua = {
@@ -164,15 +140,12 @@ return {
       })
 
       require("mason-lspconfig").setup({
-        ensure_installed = servers,
+        ensure_installed = mason_servers,
         automatic_enable = false,
       })
 
+      require("config.copilot").setup()
       vim.lsp.enable(servers)
-
-      if vim.lsp.inline_completion then
-        vim.lsp.inline_completion.enable(true)
-      end
 
       vim.lsp.log.set_level("ERROR")
     end,
