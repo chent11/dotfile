@@ -1,3 +1,4 @@
+---@type fun(event: string|string[], opts: table): integer
 local autocmd = vim.api.nvim_create_autocmd
 local augroup = vim.api.nvim_create_augroup
 
@@ -66,10 +67,56 @@ Based on the differences outlined above, please create a concise commit message 
   vim.api.nvim_buf_set_lines(0, 0, 0, false, vim.split(full_template, "\n"))
 end
 
-autocmd("BufReadPost", {
+autocmd("FileType", {
   group    = augroup("GitCommitAppend", { clear = true }),
-  pattern  = "COMMIT_EDITMSG",
+  pattern  = "gitcommit",
   callback = append_commit_template,
+})
+
+-- ===========================================================================
+-- Git commit message colorcolumn
+-- Subject: 50 chars, body: 72 chars
+-- ===========================================================================
+local function first_commit_message_line()
+  for i = 1, vim.api.nvim_buf_line_count(0) do
+    local line = vim.api.nvim_buf_get_lines(0, i - 1, i, false)[1] or ""
+    if not line:match("^%s*$") and not line:match("^%s*#") then
+      return i
+    end
+  end
+  return 1
+end
+
+local function update_gitcommit_colorcolumn()
+  local current = vim.fn.line(".")
+  local text = vim.api.nvim_get_current_line()
+
+  if text:match("^%s*#") then
+    vim.opt_local.colorcolumn = ""
+    return
+  end
+
+  local subject_line = first_commit_message_line()
+
+  if current == subject_line then
+    vim.opt_local.colorcolumn = "51"
+  else
+    vim.opt_local.colorcolumn = "73"
+  end
+end
+
+autocmd({ "BufReadPost", "BufNewFile" }, {
+  group = augroup("GitCommitColorColumn", { clear = true }),
+  pattern = "COMMIT_EDITMSG",
+  callback = function()
+    vim.opt_local.textwidth = 72
+    update_gitcommit_colorcolumn()
+
+    autocmd({ "CursorMoved", "CursorMovedI", "TextChanged", "TextChangedI" }, {
+      buffer = 0,
+      callback = update_gitcommit_colorcolumn,
+    })
+  end,
 })
 
 -- ===========================================================================
