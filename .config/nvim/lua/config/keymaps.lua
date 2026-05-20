@@ -65,34 +65,6 @@ map({ "n", "v" }, "<leader>fmt", function()
 end, { desc = "Format buffer via LSP" })
 
 -- ---------------------------------------------------------------------------
--- Copilot LSP toggle + inline completion accept
--- (kept here, not in plugins/lsp.lua, because the <Tab> mapping has to be in
---  place from startup regardless of whether the LSP has attached yet.)
--- ---------------------------------------------------------------------------
-map("n", "<leader>cp", function()
-  local enabled = vim.lsp.is_enabled("copilot")
-  vim.lsp.enable("copilot", not enabled)
-  if enabled then
-    vim.lsp.inline_completion.enable(false)
-    print("Copilot LSP disabled globally")
-  else
-    vim.lsp.inline_completion.enable(true)
-    print("Copilot LSP enabled globally")
-  end
-end, { desc = "Toggle Copilot LSP globally" })
-
-map("i", "<Tab>", function()
-  if vim.lsp.inline_completion.get() then
-    return ""
-  end
-  return "<Tab>"
-end, {
-  expr            = true,
-  replace_keycodes = true,
-  desc            = "Accept Copilot inline completion or insert <Tab>",
-})
-
--- ---------------------------------------------------------------------------
 -- User commands
 -- ---------------------------------------------------------------------------
 vim.api.nvim_create_user_command(
