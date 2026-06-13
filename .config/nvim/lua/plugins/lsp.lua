@@ -2,6 +2,7 @@ local servers = {
   "pyright",
   "clangd",
   "lua_ls",
+  "kotlin_lsp",
 }
 
 local mason_servers = {
@@ -9,6 +10,7 @@ local mason_servers = {
   "pyright",
   "clangd",
   "lua_ls",
+  "kotlin_lsp",
 }
 
 local tools = {
@@ -66,11 +68,11 @@ return {
 
           vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
           vim.keymap.set("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
-          vim.keymap.set("n", "gr", function() require("telescope.builtin").lsp_references() end, vim.tbl_extend("force", opts, { desc = "References" }))
+          vim.keymap.set("n", "gr", function() Snacks.picker.lsp_references() end, vim.tbl_extend("force", opts, { desc = "References" }))
           vim.keymap.set("n", "gI", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Implementations" }))
           vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded" }) end, vim.tbl_extend("force", opts, { desc = "Hover" }))
           vim.keymap.set("n", "<leader>K", function() vim.lsp.buf.signature_help({ border = "rounded" }) end, vim.tbl_extend("force", opts, { desc = "Signature help" }))
-          vim.keymap.set("n", "<leader>lo", function() require("telescope.builtin").lsp_document_symbols() end, vim.tbl_extend("force", opts, { desc = "Document symbols" }))
+          vim.keymap.set("n", "<leader>lo", function() Snacks.picker.lsp_symbols() end, vim.tbl_extend("force", opts, { desc = "Document symbols" }))
           vim.keymap.set("n", "<C-w>d", vim.diagnostic.open_float, vim.tbl_extend("force", opts, { desc = "Open diagnostic float" }))
           vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
           vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
@@ -116,6 +118,25 @@ return {
           },
         },
       })
+
+      vim.lsp.config("kotlin_lsp", {
+          cmd = {
+            "intellij-server",
+            "--stdio",
+            "--system-path",
+            vim.fn.stdpath("cache") .. "/kotlin-lsp/PhairPlay",
+          },
+          filetypes = { "kotlin" },
+          root_markers = {
+            "settings.gradle",
+            "settings.gradle.kts",
+            "pom.xml",
+            "build.gradle",
+            "build.gradle.kts",
+            "workspace.json",
+          },
+          single_file_support = false,
+        })
 
       local clangd_markers = { ".clangd", "compile_commands.json", "compile_flags.txt", ".git" }
       vim.lsp.config("clangd", {
