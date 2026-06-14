@@ -31,5 +31,5 @@ require("config.autocmds")
 require("lazy").setup({
   spec = { { import = "plugins" } },
   checker         = { enabled = false },
-  change_detection = { notify = false },
+  change_detection = { enabled = true, notify = true },
 })
