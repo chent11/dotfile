@@ -1,6 +1,5 @@
 local function set_custom_highlights()
   vim.api.nvim_set_hl(0, "IblIndent", { fg = "#444444", nocombine = true })
-  vim.api.nvim_set_hl(0, "IndentBlanklineIndent1", { fg = "#444444", nocombine = true })
 end
 
 return {

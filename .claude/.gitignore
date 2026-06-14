@@ -1,0 +1,29 @@
+# Sensitive
+.credentials.json
+stats-cache.json
+mcp-needs-auth-cache.json
+
+# Runtime / volatile
+history.jsonl
+paste-cache/
+daemon.lock
+daemon.status.json
+daemon.log
+.last-cleanup
+daemon/
+sessions/
+session-env/
+shell-snapshots/
+backups/
+cache/
+downloads/
+file-history/
+ide/
+jobs/
+plans/
+
+# Per-project state (machine-specific paths)
+projects/
+
+# Installed plugins (not config)
+plugins/

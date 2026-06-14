@@ -1,0 +1,10 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "sh /home/chentao/.claude/statusline-command.sh"
+  },
+  "theme": "dark",
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true
+  }
+}
