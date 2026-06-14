@@ -29,9 +29,10 @@ To reload tmux config in a live session: `tmux source-file ~/.tmux.conf`
 
 **Plugin specs** (`lua/plugins/`):
 - `lsp.lua` — nvim-cmp, nvim-lspconfig, mason, conform (formatting), nvim-lint; LSP servers: pyright, clangd, lua_ls, kotlin_lsp, copilot
-- `editor.lua` — flash.nvim, aerial.nvim, undotree, lualine, indent-blankline, Comment.nvim, highlight-undo
+- `editor.lua` — flash.nvim, aerial.nvim, undotree, lualine, Comment.nvim, highlight-undo
 - `git.lua` — vim-fugitive, gitsigns
-- `telescope.lua` — telescope with fzf-native; uses `fd` + `rg` for file finding and grep
+- `snacks.lua` — snacks.nvim (picker, explorer, indent guides, terminal, zen, scratch); picker uses `fd` + `rg` for files/grep
+- `ai.lua` — `coder/claudecode.nvim` Claude Code integration (snacks terminal provider; `<leader>a*` and `<A-h>` keymaps)
 - `treesitter.lua` — uses a fork (`chent11/nvim-treesitter`, branch `spell-checking-for-string`) instead of upstream
 - `colorscheme.lua` — gruvbox (active), plus lazy-loaded alternatives
 
@@ -39,7 +40,7 @@ To reload tmux config in a live session: `tmux source-file ~/.tmux.conf`
 - Copilot runs as a native LSP client (not the `copilot.vim` plugin); `<Tab>` in insert mode accepts inline completions via `vim.lsp.inline_completion`
 - Mason installs servers/tools but `automatic_enable = false` — servers are explicitly enabled via `vim.lsp.enable(servers)`
 - Treesitter uses a personal fork to add spell-checking inside strings
-- Telescope respects both `.gitignore` and `.fdignore` for file search and live grep
+- snacks picker respects both `.gitignore` and `.fdignore` for file search and live grep (each source passes `--ignore-file` explicitly)
 - snacks.nvim picker: each source (`grep`, `grep_word`, `files`, …) is configured independently under `opts.picker.sources`; settings do not inherit across sources
 
 ## Keymap Placement Convention
@@ -52,6 +53,8 @@ Never add plugin-dependent keymaps to `keymaps.lua`.
 ## Indentation Conventions
 
 Default: 4-space indent. Overridden to 2-space for: `vim`, `html`, `css`, `json`, `javascript`, `typescript`, `lua`, `sh`, `zsh` (set in `autocmds.lua`).
+
+Note: `vim-sleuth` (in `lsp.lua`) auto-detects and may override these defaults based on existing file content.
 
 ## Commit Message Convention
 
