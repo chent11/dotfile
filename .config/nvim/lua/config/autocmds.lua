@@ -232,6 +232,20 @@ autocmd("TermOpen", {
 })
 
 -- ===========================================================================
+-- Auto-reload lua/config/*.lua on save
+-- ===========================================================================
+autocmd("BufWritePost", {
+  group   = augroup("ReloadConfig", { clear = true }),
+  pattern = vim.fn.stdpath("config") .. "/lua/config/*.lua",
+  callback = function(event)
+    local module = event.match:match(".*/lua/(.-)%.lua$"):gsub("/", ".")
+    package.loaded[module] = nil
+    require(module)
+    vim.notify("Reloaded " .. module, vim.log.levels.INFO)
+  end,
+})
+
+-- ===========================================================================
 -- Briefly highlight yanked text
 -- ===========================================================================
 autocmd("TextYankPost", {
