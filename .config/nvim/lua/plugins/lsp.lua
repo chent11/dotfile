@@ -66,10 +66,6 @@ return {
           local bufnr = args.buf
           local opts = { buffer = bufnr, remap = false, silent = true }
 
-          vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
-          vim.keymap.set("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
-          vim.keymap.set("n", "gr", function() Snacks.picker.lsp_references() end, vim.tbl_extend("force", opts, { desc = "References" }))
-          vim.keymap.set("n", "gI", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Implementations" }))
           vim.keymap.set("n", "K", function() vim.lsp.buf.hover({ border = "rounded" }) end, vim.tbl_extend("force", opts, { desc = "Hover" }))
           vim.keymap.set("n", "<leader>K", function() vim.lsp.buf.signature_help({ border = "rounded" }) end, vim.tbl_extend("force", opts, { desc = "Signature help" }))
           vim.keymap.set("n", "<leader>lo", function() Snacks.picker.lsp_symbols() end, vim.tbl_extend("force", opts, { desc = "Document symbols" }))

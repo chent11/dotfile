@@ -49,17 +49,6 @@ return {
   },
 
   {
-    "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
-    event = { "BufReadPost", "BufNewFile" },
-    opts = {},
-    config = function(_, opts)
-      vim.opt.list = true
-      require("ibl").setup(opts)
-    end,
-  },
-
-  {
     "numToStr/Comment.nvim",
     keys = {
       { "gc", mode = { "n", "v" } },
