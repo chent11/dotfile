@@ -43,23 +43,6 @@ map("n", "<leader>j", "<cmd>lprev<CR>zz", { desc = "Prev location list item" })
 map("n", "<leader>cw", [[/<C-r><C-w><CR>Ncw]], { desc = "Change word under cursor (repeat with .)" })
 
 -- ---------------------------------------------------------------------------
--- Copilot inline completion: accept suggestion with <Tab>
--- ---------------------------------------------------------------------------
-map("i", "<Tab>", function()
-  if vim.lsp.inline_completion
-      and vim.lsp.inline_completion.get()
-  then
-    return ""
-  end
-
-  return "<Tab>"
-end, {
-  expr = true,
-  replace_keycodes = true,
-  desc = "Accept Copilot inline completion or insert <Tab>",
-})
-
--- ---------------------------------------------------------------------------
 -- 3-way merge: pick from left / right
 -- ---------------------------------------------------------------------------
 map("n", "dg<", ":diffget //2<CR>", { desc = "Diffget left  (//2)" })

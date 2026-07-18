@@ -25,10 +25,9 @@ To reload tmux config in a live session: `tmux source-file ~/.tmux.conf`
 - `options.lua` — vim options (leader key, folding, indentation, search, UI)
 - `keymaps.lua` — global keymaps not tied to any plugin
 - `autocmds.lua` — autocommands (commit template injection, filetype tweaks, trailing whitespace trimming)
-- `copilot.lua` — Copilot LSP setup module, called from `plugins/lsp.lua`
 
 **Plugin specs** (`lua/plugins/`):
-- `lsp.lua` — nvim-cmp, nvim-lspconfig, mason, conform (formatting), nvim-lint; LSP servers: pyright, clangd, lua_ls, kotlin_lsp, copilot
+- `lsp.lua` — nvim-cmp, nvim-lspconfig, mason, conform (formatting), nvim-lint; LSP servers: pyright, clangd, lua_ls, kotlin_lsp
 - `editor.lua` — flash.nvim, aerial.nvim, undotree, lualine, Comment.nvim, highlight-undo
 - `git.lua` — vim-fugitive, gitsigns
 - `snacks.lua` — snacks.nvim (picker, explorer, indent guides, terminal, zen, scratch); picker uses `fd` + `rg` for files/grep
@@ -37,7 +36,6 @@ To reload tmux config in a live session: `tmux source-file ~/.tmux.conf`
 - `colorscheme.lua` — gruvbox (active), plus lazy-loaded alternatives
 
 **Key design decisions:**
-- Copilot runs as a native LSP client (not the `copilot.vim` plugin); `<Tab>` in insert mode accepts inline completions via `vim.lsp.inline_completion`
 - Mason installs servers/tools but `automatic_enable = false` — servers are explicitly enabled via `vim.lsp.enable(servers)`
 - Treesitter uses a personal fork to add spell-checking inside strings
 - snacks picker respects both `.gitignore` and `.fdignore` for file search and live grep (each source passes `--ignore-file` explicitly)

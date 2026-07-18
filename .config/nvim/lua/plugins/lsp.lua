@@ -6,7 +6,6 @@ local servers = {
 }
 
 local mason_servers = {
-  "copilot",
   "pyright",
   "clangd",
   "lua_ls",
@@ -161,7 +160,6 @@ return {
         automatic_enable = false,
       })
 
-      require("config.copilot").setup()
       vim.lsp.enable(servers)
 
       vim.lsp.log.set_level("ERROR")
