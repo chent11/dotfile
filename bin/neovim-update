@@ -1,0 +1,146 @@
+#!/bin/bash
+
+set +e
+
+INSTALLER_NAME="nvim-linux-x86_64.appimage"
+SKIP_CHECK=${1:-}
+
+# Check if jq is installed
+if ! command -v jq &> /dev/null; then
+  echo "jq could not be found, please install it first"
+  exit 1
+fi
+
+# Check if curl is installed
+if ! command -v curl &> /dev/null; then
+  echo "curl could not be found, please install it first"
+  exit 1
+fi
+
+# Check if sha256sum is installed
+if ! command -v sha256sum &> /dev/null; then
+  echo "sha256sum could not be found, please install it first"
+  exit 1
+fi
+
+# Check if fuser is installed
+if ! command -v fuser &> /dev/null; then
+  echo "fuser could not be found, please install it first"
+  exit 1
+fi
+
+# Check if nvim is installed
+if ! command -v nvim &> /dev/null; then
+  echo "no nvim installation found, installing the latest version"
+  SKIP_CHECK="--skip-check"
+fi
+
+if [ "$SKIP_CHECK" != "--skip-check" ]; then
+  # Check if there is an upgradeable version available
+  current_version=$(/usr/bin/nvim --version | grep -oP 'v[\d.]+')
+  latest_version=$(curl https://api.github.com/repos/neovim/neovim/tags -s | jq '.[0].name' -r)
+
+  if [ "$current_version" == "$latest_version" ]; then
+    echo "You are using the latest version"
+    exit 0
+  fi
+
+  # Prompt the user for confirmation
+  echo "New version is available!"
+  read -p "Are you sure to upgrade? $current_version -> $latest_version (y/[n]) " response
+  if ! [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    echo "Upgrade canceled"
+    exit 0
+  fi
+
+  # check if /usr/bin/nvim is in use
+  if fuser /usr/bin/nvim &>/dev/null; then
+    echo "nvim is in use. Please close all nvim instances before upgrading"
+    exit 1
+  fi
+
+fi
+
+if [ "$UID" -ne 0 ]; then
+  echo "Upgrading or installing neovim requires root privileges. Escalating..."
+  exec sudo "$0" --skip-check
+  exit 0
+fi
+
+## the rest of the script will be executed as root
+if [ "$UID" -ne 0 ]; then
+  echo "Failed to gain root privileges"
+  exit 1
+fi
+
+# check if /usr/bin/nvim is in use
+if fuser /usr/bin/nvim &>/dev/null; then
+  echo "nvim is in use. Please close all nvim instances before upgrading"
+  exit 1
+fi
+
+# create temporary directory
+temp_dir=$(mktemp -d)
+if [[ ! -d "$temp_dir" ]]; then
+  echo "Failed to create a temporary directory"
+  exit 1
+fi
+
+# function to remove temporary directory
+cleanup() {
+  local ret=$?
+  echo "Cleaning up..."
+  rm -rf "$temp_dir"
+  trap - SIGINT EXIT
+  exit $ret
+}
+
+# catch signals to remove temporary directory
+trap cleanup SIGINT EXIT
+
+# download the file
+echo "Downloading $INSTALLER_NAME ..."
+read -r dl_url digest < <(
+  curl -fsSL -H "Accept: application/vnd.github+json" "https://api.github.com/repos/neovim/neovim/releases/latest" |
+  jq -r --arg name "$INSTALLER_NAME" '
+    .assets[] | select(.name==$name)
+    | (.browser_download_url) + " " + (.digest // "")'
+)
+
+if [[ -z "$digest" ]]; then
+  echo "Error: SHA256 digest not found for $INSTALLER_NAME"
+  exit 1
+fi
+
+if [[ -z "${dl_url:-}" ]]; then
+  echo "Error: $INSTALLER_NAME not found in the latest release"
+  exit 1
+fi
+
+outfile="${temp_dir}/${INSTALLER_NAME}"
+curl -fsSL --retry 3 -o "$outfile" "$dl_url"
+if [[ $? -ne 0 ]]; then
+  echo "Error: Failed to download $INSTALLER_NAME from $dl_url"
+  exit 1
+fi
+
+# check if the file is not empty
+if [ ! -s "$outfile" ]; then
+  echo "Error: Downloaded file is empty"
+  exit 1
+fi
+
+# Strip "sha256:" prefix if present
+digest="${digest#sha256:}"
+
+(
+  cd $temp_dir
+  # check the sha256sum and install the nvim
+  echo "$digest  $INSTALLER_NAME" | sha256sum --check --status
+  echo "Installing..."
+  # make the installer executable and install it
+  chmod a+x $INSTALLER_NAME
+  # copy may fail if the file is in use
+  cp -f $INSTALLER_NAME /usr/bin/nvim || exit 1
+  echo "Upgrade Complete. Please run the command 'rehash' or 'hash -r' to update the command line hash table"
+)
