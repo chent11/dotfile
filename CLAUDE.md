@@ -4,12 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a personal dotfile repository for a Linux/WSL2 environment. It contains:
+This is a personal dotfile repository for Linux/WSL2 and macOS. It contains:
 - Neovim configuration (`~/.config/nvim/`) — the primary focus of active development
 - Zsh configuration (`~/.zshrc`) with oh-my-zsh + Powerlevel10k
 - Tmux configuration (`~/.tmux.conf`) with custom pane scripts
 - SSH public keys (git submodule)
 - Neovim spell files (git submodule)
+
+## Fresh Machine Setup
+
+`./bootstrap.sh` provisions a new Ubuntu/Debian or macOS machine: system packages (apt or Homebrew), symlinks into `$HOME`, oh-my-zsh + plugins, fzf, fnm/node, rustup, tree-sitter-cli, Neovim (AppImage via `bin/neovim-update` on Linux, brew on macOS) and then `bin/nvim-bootstrap.lua` headlessly installs plugins, parsers and Mason packages from `lua/config/tools.lua`. It is idempotent, bash 3.2 compatible, and backs up anything it replaces to `~/.dotfile-backup/`.
+
+Platform-conditional bits live in the config files themselves, not the script: `.zshrc` guards Homebrew, fnm, cargo and `/etc/zsh_command_not_found`; `.tmux.conf` picks `pbcopy` or `xclip` with `if-shell`.
 
 ## Applying Changes
 
@@ -25,6 +31,7 @@ To reload tmux config in a live session: `tmux source-file ~/.tmux.conf`
 - `options.lua` — vim options (leader key, folding, indentation, search, UI)
 - `keymaps.lua` — global keymaps not tied to any plugin
 - `autocmds.lua` — autocommands (commit template injection, filetype tweaks, trailing whitespace trimming)
+- `tools.lua` — the lists of LSP servers, Mason tools and treesitter parsers; the single source of truth read by `lsp.lua`, `treesitter.lua` and `bin/nvim-bootstrap.lua`
 
 **Plugin specs** (`lua/plugins/`):
 - `lsp.lua` — nvim-cmp, nvim-lspconfig, mason, conform (formatting), nvim-lint; LSP servers: pyright, clangd, lua_ls, kotlin_lsp

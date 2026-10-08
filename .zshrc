@@ -7,6 +7,13 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# Homebrew (macOS; Apple Silicon installs outside the default PATH)
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
 # If you come from bash you might have to change your $PATH.
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/.local/bin" ] ; then
@@ -158,16 +165,16 @@ setopt SHARE_HISTORY             # Share history between all sessions.
 # END HISTORY
 
 # fnm
-export PATH="/home/chentao/.local/share/fnm:$PATH"
-eval "`fnm env`"
+export PATH="$HOME/.local/share/fnm:$PATH"
+command -v fnm >/dev/null && eval "$(fnm env)"
 
 export EDITOR=vim
 
-# command not found suggestion
-source /etc/zsh_command_not_found
+# command not found suggestion (Ubuntu's command-not-found package; absent on macOS)
+[[ -f /etc/zsh_command_not_found ]] && source /etc/zsh_command_not_found
 
 # rust
-source "$HOME/.cargo/env"
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
 # Android SDK
 export ANDROID_HOME="$HOME/Android/Sdk"
