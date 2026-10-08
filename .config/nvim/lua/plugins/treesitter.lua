@@ -1,15 +1,4 @@
-local parsers = {
-  "c",
-  "cpp",
-  "go",
-  "lua",
-  "python",
-  "rust",
-  "typescript",
-  "vim",
-  "query",
-  "comment",
-}
+local parsers = require("config.tools").parsers
 
 local disabled_languages = {
   asm = true,
@@ -26,9 +15,6 @@ return {
     branch = "spell-checking-for-string",
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter-textobjects",
-    },
     config = function()
       local ok, ts = pcall(require, "nvim-treesitter")
       if not ok then

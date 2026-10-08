@@ -9,11 +9,19 @@ local g   = vim.g
 -- Folding (treesitter-based)
 -- ---------------------------------------------------------------------------
 o.foldmethod     = "expr"
-o.foldexpr       = "nvim_treesitter#foldexpr()"
+o.foldexpr       = "v:lua.vim.treesitter.foldexpr()"
 o.foldenable     = true
 o.foldlevel      = 99
 o.foldcolumn     = "1"
 o.foldlevelstart = 99
+
+-- ---------------------------------------------------------------------------
+-- Providers: no remote plugins are used, skip probing for them at startup
+-- ---------------------------------------------------------------------------
+g.loaded_node_provider    = 0
+g.loaded_perl_provider    = 0
+g.loaded_ruby_provider    = 0
+g.loaded_python3_provider = 0
 
 -- ---------------------------------------------------------------------------
 -- Filetype tweaks

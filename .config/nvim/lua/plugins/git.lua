@@ -55,7 +55,7 @@ return {
         map("n", "<leader>hp", gs.preview_hunk, { desc = "Preview hunk" })
         map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, { desc = "Blame line" })
         map("n", "<leader>hD", function() gs.diffthis("HEAD") end, { desc = "Diff against HEAD" })
-        map("n", "<leader>td", gs.toggle_deleted, { desc = "Toggle deleted lines" })
+        map("n", "<leader>hi", gs.preview_hunk_inline, { desc = "Preview hunk inline" })
       end
 
       require("gitsigns").setup(opts)

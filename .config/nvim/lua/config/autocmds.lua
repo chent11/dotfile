@@ -202,7 +202,7 @@ autocmd("FileType", {
   group    = ft_group,
   pattern  = "asm",
   callback = function()
-    vim.o.foldmethod = "manual"
+    vim.opt_local.foldmethod = "manual"
   end,
 })
 
@@ -233,10 +233,19 @@ autocmd("TermOpen", {
 
 -- ===========================================================================
 -- Auto-reload lua/config/*.lua on save
+-- Match both the stdpath (symlink) and the resolved real path so the reload
+-- fires regardless of which path the file was opened through.
 -- ===========================================================================
+local config_dir  = vim.fn.stdpath("config")
+local real_config = vim.uv.fs_realpath(config_dir) or config_dir
+local reload_patterns = { config_dir .. "/lua/config/*.lua" }
+if real_config ~= config_dir then
+  table.insert(reload_patterns, real_config .. "/lua/config/*.lua")
+end
+
 autocmd("BufWritePost", {
   group   = augroup("ReloadConfig", { clear = true }),
-  pattern = vim.fn.stdpath("config") .. "/lua/config/*.lua",
+  pattern = reload_patterns,
   callback = function(event)
     local module = event.match:match(".*/lua/(.-)%.lua$"):gsub("/", ".")
     package.loaded[module] = nil
@@ -252,6 +261,6 @@ autocmd("TextYankPost", {
   group    = augroup("HighlightYank", { clear = true }),
   pattern  = "*",
   callback = function()
-    vim.highlight.on_yank({ higroup = "IncSearch", timeout = 150 })
+    vim.hl.on_yank({ higroup = "IncSearch", timeout = 150 })
   end,
 })

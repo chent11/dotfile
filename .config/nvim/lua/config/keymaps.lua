@@ -54,11 +54,6 @@ map("n", "dg>", ":diffget //3<CR>", { desc = "Diffget right (//3)" })
 map("n", "Q", "<nop>")            -- disable Ex mode
 map("t", "<Esc>", [[<C-\><C-n>]]) -- exit terminal mode
 
-map({ "n", "v" }, "<leader>fmt", function()
-  vim.lsp.buf.format()
-  print("Code formatted")
-end, { desc = "Format buffer via LSP" })
-
 -- ---------------------------------------------------------------------------
 -- User commands
 -- ---------------------------------------------------------------------------

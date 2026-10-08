@@ -1,21 +1,5 @@
-local servers = {
-  "pyright",
-  "clangd",
-  "lua_ls",
-  "kotlin_lsp",
-}
-
-local mason_servers = {
-  "pyright",
-  "clangd",
-  "lua_ls",
-  "kotlin_lsp",
-}
-
-local tools = {
-  "prettier",
-  "hadolint",
-}
+local tools = require("config.tools")
+local servers = tools.servers
 
 return {
   {
@@ -25,7 +9,6 @@ return {
       "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
-      "L3MON4D3/LuaSnip",
     },
     config = function()
       local cmp = require("cmp")
@@ -122,15 +105,20 @@ return {
             vim.fn.stdpath("cache") .. "/kotlin-lsp/PhairPlay",
           },
           filetypes = { "kotlin" },
-          root_markers = {
-            "settings.gradle",
-            "settings.gradle.kts",
-            "pom.xml",
-            "build.gradle",
-            "build.gradle.kts",
-            "workspace.json",
-          },
-          single_file_support = false,
+          -- Only attach inside a recognised project; never start for a lone file.
+          root_dir = function(bufnr, on_dir)
+            local root = vim.fs.root(bufnr, {
+              "settings.gradle",
+              "settings.gradle.kts",
+              "pom.xml",
+              "build.gradle",
+              "build.gradle.kts",
+              "workspace.json",
+            })
+            if root then
+              on_dir(root)
+            end
+          end,
         })
 
       local clangd_markers = { ".clangd", "compile_commands.json", "compile_flags.txt", ".git" }
@@ -156,7 +144,7 @@ return {
       })
 
       require("mason-lspconfig").setup({
-        ensure_installed = mason_servers,
+        ensure_installed = servers,
         automatic_enable = false,
       })
 
@@ -170,7 +158,7 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     dependencies = { "mason-org/mason.nvim" },
     opts = {
-      ensure_installed = tools,
+      ensure_installed = tools.tools,
       run_on_start = true,
       auto_update = false,
       debounce_hours = 24,
@@ -181,6 +169,17 @@ return {
     "stevearc/conform.nvim",
     event = { "BufWritePre" },
     cmd = "ConformInfo",
+    keys = {
+      {
+        "<leader>fmt",
+        function()
+          require("conform").format({ lsp_format = "fallback" })
+          print("Code formatted")
+        end,
+        mode = { "n", "v" },
+        desc = "Format buffer (conform, LSP fallback)",
+      },
+    },
     opts = {
       formatters_by_ft = {
         yaml = { "prettier" },

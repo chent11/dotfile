@@ -6,7 +6,6 @@ return {
     keys = {
       -- Top Pickers & Explorer
       { "<leader>:",       function() Snacks.picker.command_history() end, desc = "Command History" },
-      { "<leader>n",       function() Snacks.picker.notifications() end,   desc = "Notification History" },
       { "<leader>e",       function() Snacks.explorer() end,               desc = "File Explorer" },
       { "<leader><space>", function() Snacks.picker.smart() end,           desc = "Smart Find Files" },
       -- find
@@ -34,7 +33,6 @@ return {
       { '<leader>s/', function() Snacks.picker.search_history() end,       desc = "Search History" },
       { "<leader>sc", function() Snacks.picker.command_history() end,      desc = "Command History" },
       { "<leader>sC", function() Snacks.picker.commands() end,             desc = "Commands" },
-      { "<leader>sd", function() Snacks.picker.diagnostics() end,          desc = "Diagnostics" },
       { "<leader>sD", function() Snacks.picker.diagnostics_buffer() end,   desc = "Buffer Diagnostics" },
       { "<leader>su", function() Snacks.picker.undo() end,                 desc = "Undo History" },
       { "<leader>df", function() Snacks.picker.git_status() end,           desc = "Diff files" },
@@ -49,7 +47,6 @@ return {
       { "<leader>Z",  function() Snacks.zen.zoom() end,                    desc = "Toggle Zoom" },
       { "<leader>.",  function() Snacks.scratch() end,                     desc = "Toggle Scratch Buffer" },
       { "<leader>S",  function() Snacks.scratch.select() end,              desc = "Select Scratch Buffer" },
-      { "<leader>n",  function() Snacks.notifier.show_history() end,       desc = "Notification History" },
       { "<leader>cR", function() Snacks.rename.rename_file() end,          desc = "Rename File" },
     },
     opts = {
