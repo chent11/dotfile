@@ -309,7 +309,7 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# 7. git identity (only if unset; this repo's history is authored by Chen Tao)
+# 7. git identity (only if unset) and global ignores
 # --------------------------------------------------------------------------
 step "Git identity"
 if [ -z "$(git config --global user.name || true)" ]; then
@@ -318,6 +318,15 @@ if [ -z "$(git config --global user.name || true)" ]; then
 fi
 git config --global init.defaultBranch main
 git config --global core.editor nvim
+if [ "$OS" = macos ]; then
+  # Finder drops .DS_Store into every directory it opens; ignore it in all repos.
+  # ~/.config/git/ignore is read by git without any core.excludesFile setting.
+  mkdir -p "$HOME/.config/git"
+  if ! grep -qxF ".DS_Store" "$HOME/.config/git/ignore" 2>/dev/null; then
+    printf '.DS_Store\n' >> "$HOME/.config/git/ignore"
+    info "added .DS_Store to ~/.config/git/ignore"
+  fi
+fi
 info "$(git config --global user.name) <$(git config --global user.email)>"
 
 # --------------------------------------------------------------------------
