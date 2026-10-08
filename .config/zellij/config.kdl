@@ -1,0 +1,197 @@
+// Zellij config with tmux-style keybindings.
+// Prefix is Alt+e (same as ~/.tmux.conf). Press the prefix, then a key.
+// Previous config backed up to config.kdl.bak.4.
+
+keybinds clear-defaults=true {
+    // ---- prefix: Alt e enters "tmux" mode from anywhere except locked/scroll/search
+    shared_except "locked" "tmux" "scroll" "search" "entersearch" "renametab" "renamepane" {
+        bind "Alt e" { SwitchToMode "tmux"; }
+    }
+
+
+    // ---- tmux mode (after prefix)
+    tmux {
+        // send the prefix itself to the app (ESC e)
+        bind "Alt e" { Write 27 101; SwitchToMode "normal"; }
+
+        // panes
+        bind "\"" { NewPane "down"; SwitchToMode "normal"; }
+        bind "%" { NewPane "right"; SwitchToMode "normal"; }
+        bind "x" { CloseFocus; SwitchToMode "normal"; }
+        bind "z" { ToggleFocusFullscreen; SwitchToMode "normal"; }
+        bind "o" { FocusNextPane; SwitchToMode "normal"; }
+        bind ";" { FocusPreviousPane; SwitchToMode "normal"; }
+        bind "left" { MoveFocus "left"; SwitchToMode "normal"; }
+        bind "down" { MoveFocus "down"; SwitchToMode "normal"; }
+        bind "up" { MoveFocus "up"; SwitchToMode "normal"; }
+        bind "right" { MoveFocus "right"; SwitchToMode "normal"; }
+        // Alt+arrows / Alt+hjkl stay in prefix mode so you can keep moving; esc or enter to leave
+        bind "Alt left" "Alt h" { MoveFocus "left"; }
+        bind "Alt down" "Alt j" { MoveFocus "down"; }
+        bind "Alt up" "Alt k" { MoveFocus "up"; }
+        bind "Alt right" "Alt l" { MoveFocus "right"; }
+        bind "{" { MovePaneBackwards; SwitchToMode "normal"; }
+        bind "}" { MovePane; SwitchToMode "normal"; }
+        bind "space" { NextSwapLayout; SwitchToMode "normal"; }
+        bind "BackSpace" { PreviousSwapLayout; SwitchToMode "normal"; }
+        bind "S" { NewPane "stacked"; SwitchToMode "normal"; }   // new pane stacked on the focused one
+        bind "g" { TogglePaneInGroup; SwitchToMode "normal"; }   // mark/unmark focused pane for a group operation (stack, break to tab, float, close)
+        bind "G" { ToggleGroupMarking; SwitchToMode "normal"; }  // group-marking mode: every pane you focus gets marked until toggled off
+        bind "b" "!" { BreakPane; SwitchToMode "normal"; }
+        bind "f" { ToggleFloatingPanes; SwitchToMode "normal"; }
+        bind "s" { NewPane; SwitchToMode "normal"; }   // auto-placed pane (like tmux prefix+s script); floating if the floating layer is shown
+        bind "e" { TogglePaneEmbedOrFloating; SwitchToMode "normal"; }
+        bind "i" { TogglePanePinned; SwitchToMode "normal"; }   // keep a floating pane visible even when the floating layer is hidden
+        bind "r" { SwitchToMode "resize"; }
+        bind "m" { SwitchToMode "move"; }
+
+        // tabs (tmux windows)
+        bind "c" { NewTab; SwitchToMode "normal"; }
+        bind "n" { GoToNextTab; SwitchToMode "normal"; }
+        bind "p" { GoToPreviousTab; SwitchToMode "normal"; }
+        bind "l" "tab" { ToggleTab; SwitchToMode "normal"; }   // tmux last-window
+        bind "," { SwitchToMode "renametab"; TabNameInput 0; }
+        bind "&" { CloseTab; SwitchToMode "normal"; }
+        bind "H" { MoveTab "left"; SwitchToMode "normal"; }
+        bind "L" { MoveTab "right"; SwitchToMode "normal"; }
+        bind "1" { GoToTab 1; SwitchToMode "normal"; }
+        bind "2" { GoToTab 2; SwitchToMode "normal"; }
+        bind "3" { GoToTab 3; SwitchToMode "normal"; }
+        bind "4" { GoToTab 4; SwitchToMode "normal"; }
+        bind "5" { GoToTab 5; SwitchToMode "normal"; }
+        bind "6" { GoToTab 6; SwitchToMode "normal"; }
+        bind "7" { GoToTab 7; SwitchToMode "normal"; }
+        bind "8" { GoToTab 8; SwitchToMode "normal"; }
+        bind "9" { GoToTab 9; SwitchToMode "normal"; }
+
+        // scrollback / copy mode
+        bind "[" { SwitchToMode "scroll"; }
+        bind "/" { SwitchToMode "entersearch"; SearchInput 0; }
+
+        // sessions
+        bind "d" { Detach; }
+        bind "w" {
+            LaunchOrFocusPlugin "session-manager" {
+                floating true
+                move_to_focused_tab true
+            }
+            SwitchToMode "normal"
+        }
+        bind "?" {   // show this key list in a floating window (q to close)
+            Run "sh" "-c" "exec $HOME/dotfile/bin/zellij-keys" {
+                floating true
+                close_on_exit true
+                name "keys"
+                width "60%"
+                height "80%"
+                x "20%"
+                y "10%"
+            }
+            SwitchToMode "normal"
+        }
+    }
+
+    // ---- resize mode (prefix r, then hjkl / arrows, +/-; esc or enter to leave)
+    resize {
+        bind "h" "left" { Resize "Increase left"; }
+        bind "j" "down" { Resize "Increase down"; }
+        bind "k" "up" { Resize "Increase up"; }
+        bind "l" "right" { Resize "Increase right"; }
+        bind "H" { Resize "Decrease left"; }
+        bind "J" { Resize "Decrease down"; }
+        bind "K" { Resize "Decrease up"; }
+        bind "L" { Resize "Decrease right"; }
+        bind "+" "=" { Resize "Increase"; }
+        bind "-" { Resize "Decrease"; }
+    }
+
+    // ---- move mode (prefix m, then hjkl / arrows; esc or enter to leave)
+    move {
+        bind "h" "left" { MovePane "left"; }
+        bind "j" "down" { MovePane "down"; }
+        bind "k" "up" { MovePane "up"; }
+        bind "l" "right" { MovePane "right"; }
+        bind "n" "tab" { MovePane; }
+        bind "p" { MovePaneBackwards; }
+    }
+
+    // ---- scroll (copy) mode, vi keys like tmux mode-keys vi
+    scroll {
+        bind "e" { EditScrollback; SwitchToMode "normal"; }
+        bind "/" { SwitchToMode "entersearch"; SearchInput 0; }
+        bind "q" { ScrollToBottom; SwitchToMode "normal"; }
+    }
+    search {
+        bind "n" { Search "down"; }
+        bind "N" { Search "up"; }
+        bind "c" { SearchToggleOption "CaseSensitivity"; }
+        bind "w" { SearchToggleOption "WholeWord"; }
+        bind "o" { SearchToggleOption "Wrap"; }
+        bind "q" { ScrollToBottom; SwitchToMode "normal"; }
+    }
+    shared_among "scroll" "search" {
+        bind "j" "down" { ScrollDown; }
+        bind "k" "up" { ScrollUp; }
+        bind "Ctrl d" { HalfPageScrollDown; }
+        bind "Ctrl u" { HalfPageScrollUp; }
+        bind "Ctrl f" "PageDown" "right" "l" { PageScrollDown; }
+        bind "Ctrl b" "PageUp" "left" "h" { PageScrollUp; }
+        bind "g" { ScrollToTop; }
+        bind "G" { ScrollToBottom; }
+        bind "Ctrl c" { ScrollToBottom; SwitchToMode "normal"; }
+    }
+    entersearch {
+        bind "Ctrl c" "esc" { SwitchToMode "scroll"; }
+        bind "enter" { SwitchToMode "search"; }
+    }
+
+    // ---- rename modes
+    renametab {
+        bind "esc" { UndoRenameTab; SwitchToMode "normal"; }
+    }
+    renamepane {
+        bind "esc" { UndoRenamePane; SwitchToMode "normal"; }
+    }
+    shared_among "renametab" "renamepane" {
+        bind "Ctrl c" { SwitchToMode "normal"; }
+    }
+
+    // ---- leaving modes
+    shared_except "normal" "locked" "entersearch" {
+        bind "enter" { SwitchToMode "normal"; }
+    }
+    shared_except "normal" "locked" "entersearch" "renametab" "renamepane" {
+        bind "esc" { SwitchToMode "normal"; }
+    }
+}
+
+plugins {
+    about location="zellij:about"
+    compact-bar location="zellij:compact-bar"
+    configuration location="zellij:configuration"
+    filepicker location="zellij:strider" {
+        cwd "/"
+    }
+    plugin-manager location="zellij:plugin-manager"
+    session-manager location="zellij:session-manager"
+    status-bar location="zellij:status-bar"
+    strider location="zellij:strider"
+    tab-bar location="zellij:tab-bar"
+    welcome-screen location="zellij:session-manager" {
+        welcome_screen true
+    }
+}
+
+load_plugins {
+    zellij:link
+}
+
+// ---- options
+default_mode "normal"
+default_layout "compact"   // single bar: tabs + mode indicator, no key-hint rows
+mouse_mode true
+copy_on_select true
+scroll_buffer_size 50000      // matches tmux history-limit
+on_force_close "detach"
+show_startup_tips false
+show_release_notes false

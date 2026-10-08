@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Show the prefix-mode ("tmux" mode) keybindings from the Zellij config in a pager.
+# Bound to <prefix> ? in ~/.config/zellij/config.kdl. Press q to close.
+cfg="${ZELLIJ_CONFIG_FILE:-$HOME/.config/zellij/config.kdl}"
+{
+  echo "Prefix: Alt e        Esc / Enter leaves prefix mode        q closes this window"
+  awk '
+    /^    tmux \{/ { inblk=1; next }
+    inblk && /^    \}/ { inblk=0 }
+    inblk && /^        \/\/ / { sub(/^ *\/\/ ?/, ""); print ""; print "  -- " $0; next }
+    inblk && /^        bind / {
+      line=$0
+      gsub(/\\"/, "DQUOTE", line); gsub(/"\{"/, "\"LBRACE\"", line); gsub(/"\}"/, "\"RBRACE\"", line)
+      cmt=""; if (match(line, /\/\/ .*$/)) { cmt=substr(line, RSTART+3); line=substr(line, 1, RSTART-1) }
+      keys=line; sub(/ *\{.*/, "", keys); sub(/^ *bind /, "", keys); gsub(/" "/, " | ", keys); gsub(/"/, "", keys)
+      gsub(/DQUOTE/, "\"", keys); gsub(/LBRACE/, "{", keys); gsub(/RBRACE/, "}", keys)
+      act=line; sub(/^[^{]*\{ */, "", act); sub(/ *\{.*$/, "", act); sub(/ *\}.*$/, "", act)
+      gsub(/;? *SwitchToMode "normal";? */, "", act); gsub(/;$/, "", act); sub(/^ +| +$/, "", act)
+      if (act == "") { getline nxt; act=nxt; sub(/^ +/, "", act); sub(/ *\{.*$/, "", act) }
+      printf "  %-22s %s%s\n", keys, act, (cmt != "" ? "   -- " cmt : "")
+    }
+  ' "$cfg"
+} | less -R
