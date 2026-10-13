@@ -65,6 +65,6 @@ Note: `vim-sleuth` (in `lsp.lua`) auto-detects and may override these defaults b
 
 Commits follow Conventional Commits: `fix:`, `feat:`, `refactor:`, `chore:`, `docs:`, `test:`. Opening a `COMMIT_EDITMSG` buffer automatically injects the staged diff and these guidelines as comments (via `autocmds.lua`). Subject line limit: 50 chars; body: 72 chars.
 
-## Tmux Prefix
+## Multiplexer Prefix
 
-Prefix is `M-e` (Alt+e), not the default `C-b`.
+Both tmux and zellij use `Ctrl+;` as the prefix, not the default `C-b`. Tmux keeps `M-e` (Alt+e) as `prefix2` for terminals that cannot send Ctrl+;. Ctrl+; needs extended key reporting from the terminal: zellij uses the kitty keyboard protocol (Windows Terminal 1.25+, Ghostty, WezTerm, kitty, iTerm2 3.5+), tmux asks for xterm modifyOtherKeys (Ghostty, WezTerm, kitty, iTerm2; Windows Terminal needs a `sendInput` binding for `\u001b[59;5u`).

@@ -1,18 +1,20 @@
 // Zellij config with tmux-style keybindings.
-// Prefix is Alt+e (same as ~/.tmux.conf). Press the prefix, then a key.
+// Prefix is Ctrl+; which needs a terminal that speaks the kitty keyboard
+// protocol (Windows Terminal 1.25+, Ghostty, WezTerm, kitty, iTerm2 3.5+).
+// Press the prefix, then a key. (~/.tmux.conf uses the same key, with Alt+e as prefix2.)
 // Previous config backed up to config.kdl.bak.4.
 
 keybinds clear-defaults=true {
-    // ---- prefix: Alt e enters "tmux" mode from anywhere except locked/scroll/search
+    // ---- prefix: Ctrl ; enters "tmux" mode from anywhere except locked/scroll/search
     shared_except "locked" "tmux" "scroll" "search" "entersearch" "renametab" "renamepane" {
-        bind "Alt e" { SwitchToMode "tmux"; }
+        bind "Ctrl ;" { SwitchToMode "tmux"; }
     }
 
 
     // ---- tmux mode (after prefix)
     tmux {
-        // send the prefix itself to the app (ESC e)
-        bind "Alt e" { Write 27 101; SwitchToMode "normal"; }
+        // pressing the prefix again just leaves prefix mode (Ctrl ; has no byte sequence to forward)
+        bind "Ctrl ;" { SwitchToMode "normal"; }
 
         // panes
         bind "\"" { NewPane "down"; SwitchToMode "normal"; }
