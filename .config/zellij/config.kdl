@@ -188,6 +188,7 @@ load_plugins {
 
 // ---- options
 default_mode "normal"
+// default_layout "default"   // tab bar on top + status bar with key hints at bottom
 default_layout "compact"   // single bar: tabs + mode indicator, no key-hint rows
 mouse_mode true
 copy_on_select true

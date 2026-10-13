@@ -172,6 +172,7 @@ link "$DOTFILE/.tmux_break_other_panes.sh"        "$HOME/.tmux_break_other_panes
 link "$DOTFILE/.tmux_handle_pane_intelligently.sh" "$HOME/.tmux_handle_pane_intelligently.sh"
 link "$DOTFILE/.config/nvim"                      "$HOME/.config/nvim"
 link "$DOTFILE/.config/zellij/config.kdl"         "$HOME/.config/zellij/config.kdl"
+link "$DOTFILE/.config/zellij/layouts"            "$HOME/.config/zellij/layouts"
 link "$DOTFILE/.claude"                           "$HOME/.claude"
 
 for script in "$DOTFILE"/bin/*; do

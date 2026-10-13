@@ -99,6 +99,9 @@ plugins=(gitfast golang docker kubectl zsh-autosuggestions zsh-syntax-highlighti
 
 source $ZSH/oh-my-zsh.sh
 
+# Terminal/zellij tab title: path only (default is "%n@%m:%~")
+ZSH_THEME_TERM_TITLE_IDLE="%~"
+
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
