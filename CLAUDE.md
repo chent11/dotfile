@@ -19,6 +19,8 @@ This is a personal dotfile repository for Linux/WSL2 and macOS. It contains:
 
 Tools are added with `mise use -g <tool>`, which edits the tracked config through the `~/.config/mise/config.toml` symlink; never hand-install into `~/.local/bin` or `/usr/bin` what mise can provide. `mise upgrade` updates everything pinned to `latest`.
 
+Tools that lack a macOS build upstream (currently only btop) carry `os = ["linux"]` in the mise config and are added to the `brew install` list in `bootstrap.sh` instead; mise skips them on macOS rather than failing.
+
 Platform-conditional bits live in the config files themselves, not the script: `.zshrc` guards Homebrew, mise, cargo and `/etc/zsh_command_not_found`; `.tmux.conf` picks `pbcopy` or `xclip` with `if-shell`.
 
 ## Applying Changes

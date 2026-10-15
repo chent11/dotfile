@@ -1,7 +1,8 @@
 [tools]
 atuin = "latest"
 black = "latest"
-btop = "latest"
+# btop stopped shipping macOS binaries after 1.2.13; bootstrap.sh brews it there
+btop = { version = "latest", os = ["linux"] }
 delta = "latest"
 fzf = "latest"
 lazygit = "latest"

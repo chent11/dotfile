@@ -150,11 +150,12 @@ if [ "$SKIP_PKGS" = 0 ]; then
       info "installed Homebrew"
     fi
     # psmisc/xclip are not needed: macOS has fuser and pbcopy built in.
+    # btop comes from brew here: upstream has no macOS binaries for mise.
     brew install -q \
       git curl wget jq \
       zsh \
       ripgrep fd \
-      python go
+      python go btop
   fi
 else
   step "Skipping system packages (--skip-pkgs)"
