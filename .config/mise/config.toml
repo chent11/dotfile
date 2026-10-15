@@ -5,6 +5,7 @@ black = "latest"
 btop = { version = "latest", os = ["linux"] }
 delta = "latest"
 fzf = "latest"
+gh = "latest"
 lazygit = "latest"
 neovim = "latest"
 node = "24"
