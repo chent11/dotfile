@@ -6,8 +6,12 @@ local augroup = vim.api.nvim_create_augroup
 -- COMMIT_EDITMSG: append staged diff + commit-message guidelines
 -- ===========================================================================
 local function append_commit_template()
-  -- Fugitive is loaded eagerly (see plugins/git.lua), but defend anyway
-  -- so this never blows up if the plugin is unavailable.
+  -- Fugitive is lazy-loaded on its commands (see plugins/git.lua). When nvim
+  -- is started by `git commit` nothing has loaded it yet, so pull it in here;
+  -- still bail out if the plugin is unavailable.
+  if vim.fn.exists("*FugitiveGitDir") ~= 1 then
+    pcall(function() require("lazy").load({ plugins = { "vim-fugitive" } }) end)
+  end
   if vim.fn.exists("*FugitiveGitDir") ~= 1 then
     return
   end
