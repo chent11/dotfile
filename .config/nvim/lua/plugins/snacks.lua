@@ -48,6 +48,10 @@ return {
       { "<leader>.",  function() Snacks.scratch() end,                     desc = "Toggle Scratch Buffer" },
       { "<leader>S",  function() Snacks.scratch.select() end,              desc = "Select Scratch Buffer" },
       { "<leader>cR", function() Snacks.rename.rename_file() end,          desc = "Rename File" },
+      -- git
+      { "<leader>gg", function() Snacks.lazygit() end,                     desc = "Lazygit" },
+      { "<leader>gl", function() Snacks.lazygit.log() end,                 desc = "Lazygit Log (repo)" },
+      { "<leader>gf", function() Snacks.lazygit.log_file() end,            desc = "Lazygit Log (current file)" },
     },
     opts = {
       picker       = {
@@ -88,6 +92,12 @@ return {
         animate = { enabled = false },
       },
       terminal     = { enabled = true },
+      lazygit      = {
+        -- Let snacks write a lazygit config that matches the nvim colorscheme
+        -- and opens files back in this nvim instance (not a nested one).
+        configure = true,
+        win = { style = "lazygit" },
+      },
       scroll       = { enabled = false },
       dashboard    = { enabled = false },
       explorer     = { enabled = false },

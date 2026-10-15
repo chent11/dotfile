@@ -149,10 +149,36 @@ autocmd("BufLeave", {
 autocmd("BufWritePre", {
   group    = augroup("TrimTrailingWhitespace", { clear = true }),
   pattern  = "*",
-  callback = function()
+  callback = function(args)
+    -- Skip read-only / special buffers (help, checkhealth, terminal, ...):
+    -- :s would raise E21 on them and abort the write.
+    if not vim.bo[args.buf].modifiable or vim.bo[args.buf].buftype ~= "" then
+      return
+    end
     local save_cursor = vim.fn.getpos(".")
     vim.cmd([[%s/\s\+$//e]])
     vim.fn.setpos(".", save_cursor)
+  end,
+})
+
+-- ===========================================================================
+-- Forward OSC 52 clipboard writes from programs running inside :terminal
+-- (e.g. lazygit's ctrl+o) to the real terminal. Neovim drops unknown OSC
+-- sequences coming from terminal buffers, so without this the copy would
+-- silently go nowhere when lazygit is opened through Snacks.
+-- ===========================================================================
+autocmd("TermRequest", {
+  group    = augroup("TermOsc52Passthrough", { clear = true }),
+  callback = function(ev)
+    local seq = ev.data.sequence
+    if not seq:match("^\027%]52;") then
+      return
+    end
+    -- Only forward writes. A "?" query expects an answer we cannot relay.
+    if seq:match("^\027%]52;[^;]*;%?$") then
+      return
+    end
+    vim.api.nvim_ui_send(seq .. (ev.data.terminator or "\027\\"))
   end,
 })
 
