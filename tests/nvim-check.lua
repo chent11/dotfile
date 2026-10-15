@@ -115,7 +115,6 @@ vim.list_extend(wanted, tools.tools)
 -- Mason package name -> executable it must provide (default: same name)
 local binaries = {
   ["pyright"] = "pyright-langserver",
-  ["kotlin-lsp"] = "intellij-server",
 }
 for _, name in ipairs(wanted) do
   local has, pkg = pcall(registry.get_package, name)

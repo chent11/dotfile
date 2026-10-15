@@ -60,7 +60,7 @@ end
 -- :MasonInstall quits nvim with `1cq` on the first failure, before this script
 -- can report anything, and its error text is easily lost. Here every package
 -- reports its own error, and a failed one gets a second attempt (large
--- downloads such as kotlin-lsp occasionally flake on CI runners).
+-- downloads occasionally flake on CI runners).
 local function install_all(names)
   local pending, results = #names, {}
   for _, name in ipairs(names) do

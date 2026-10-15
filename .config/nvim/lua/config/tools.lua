@@ -8,7 +8,6 @@ return {
     "pyright",
     "clangd",
     "lua_ls",
-    "kotlin_lsp",
   },
 
   -- Non-LSP tools installed through mason-tool-installer (Mason package names).

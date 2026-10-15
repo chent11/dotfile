@@ -97,30 +97,6 @@ return {
         },
       })
 
-      vim.lsp.config("kotlin_lsp", {
-          cmd = {
-            "intellij-server",
-            "--stdio",
-            "--system-path",
-            vim.fn.stdpath("cache") .. "/kotlin-lsp/PhairPlay",
-          },
-          filetypes = { "kotlin" },
-          -- Only attach inside a recognised project; never start for a lone file.
-          root_dir = function(bufnr, on_dir)
-            local root = vim.fs.root(bufnr, {
-              "settings.gradle",
-              "settings.gradle.kts",
-              "pom.xml",
-              "build.gradle",
-              "build.gradle.kts",
-              "workspace.json",
-            })
-            if root then
-              on_dir(root)
-            end
-          end,
-        })
-
       local clangd_markers = { ".clangd", "compile_commands.json", "compile_flags.txt", ".git" }
       vim.lsp.config("clangd", {
         cmd = {

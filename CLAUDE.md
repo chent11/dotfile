@@ -46,7 +46,7 @@ To reload tmux config in a live session: `tmux source-file ~/.tmux.conf`
 - `tools.lua` — the lists of LSP servers, Mason tools and treesitter parsers; the single source of truth read by `lsp.lua`, `treesitter.lua` and `bin/nvim-bootstrap.lua`
 
 **Plugin specs** (`lua/plugins/`):
-- `lsp.lua` — nvim-cmp, nvim-lspconfig, mason, conform (formatting), nvim-lint; LSP servers: pyright, clangd, lua_ls, kotlin_lsp
+- `lsp.lua` — nvim-cmp, nvim-lspconfig, mason, conform (formatting), nvim-lint; LSP servers: pyright, clangd, lua_ls
 - `editor.lua` — flash.nvim, aerial.nvim, undotree, lualine, Comment.nvim, highlight-undo
 - `git.lua` — vim-fugitive, gitsigns
 - `snacks.lua` — snacks.nvim (picker, explorer, indent guides, terminal, zen, scratch); picker uses `fd` + `rg` for files/grep
