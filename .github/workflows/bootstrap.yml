@@ -64,17 +64,16 @@ jobs:
       - name: Place the repo at ~/dotfile, where the configs expect it
         run: ln -s "$GITHUB_WORKSPACE" "$HOME/dotfile"
 
-      - name: bootstrap.sh, answering the git identity prompt through a pty
+      - name: bootstrap.sh
+        run: ~/dotfile/bootstrap.sh </dev/null
+
+      - name: git identity prompt (bootstrap.sh on a pty, answers typed when asked)
         run: |
-          # bootstrap.sh only asks for user.name/user.email on a terminal, so run
-          # it under `script`. Empty lines after the two answers keep stdin open
-          # until it exits; its exit code is read back from the marker line.
-          set +o pipefail
-          cmd='~/dotfile/bootstrap.sh; echo BOOTSTRAP_RC=$?'
-          if [ "$(uname -s)" = Darwin ]; then run() { script -q /dev/null bash -c "$cmd"; }
-          else run() { script -qec "bash -c '$cmd'" /dev/null; }; fi
-          { printf 'CI Bot\nci@example.com\n'; yes ''; } | run | tr -d '\r' | tee first-run.log
-          grep -qx 'BOOTSTRAP_RC=0' first-run.log
+          # Only the prompt matters here, so skip the slow steps. answer-prompts.py
+          # waits for each question before typing, like expect(1).
+          python3 ~/dotfile/tests/answer-prompts.py \
+            'git user.name=CI Bot' 'git user.email=ci@example.com' -- \
+            ~/dotfile/bootstrap.sh --skip-pkgs --skip-tools --skip-nvim --skip-shell --skip-fonts
           test "$(git config --global user.name)"  = "CI Bot"
           test "$(git config --global user.email)" = "ci@example.com"
 
@@ -93,7 +92,7 @@ jobs:
         if: failure()
         run: |
           mkdir -p ci-logs
-          cp first-run.log second-run.log ci-logs/ 2>/dev/null || true
+          cp second-run.log ci-logs/ 2>/dev/null || true
           cp "$HOME"/.local/state/nvim/*.log ci-logs/ 2>/dev/null || true
           cp "$HOME"/.local/share/nvim/mason/mason.log ci-logs/ 2>/dev/null || true
       - uses: actions/upload-artifact@v4
@@ -119,17 +118,16 @@ jobs:
       - name: Place the repo at ~/dotfile, where the configs expect it
         run: ln -s "$GITHUB_WORKSPACE" "$HOME/dotfile"
 
-      - name: bootstrap.sh, answering the git identity prompt through a pty
+      - name: bootstrap.sh
+        run: ~/dotfile/bootstrap.sh </dev/null
+
+      - name: git identity prompt (bootstrap.sh on a pty, answers typed when asked)
         run: |
-          # bootstrap.sh only asks for user.name/user.email on a terminal, so run
-          # it under `script`. Empty lines after the two answers keep stdin open
-          # until it exits; its exit code is read back from the marker line.
-          set +o pipefail
-          cmd='~/dotfile/bootstrap.sh; echo BOOTSTRAP_RC=$?'
-          if [ "$(uname -s)" = Darwin ]; then run() { script -q /dev/null bash -c "$cmd"; }
-          else run() { script -qec "bash -c '$cmd'" /dev/null; }; fi
-          { printf 'CI Bot\nci@example.com\n'; yes ''; } | run | tr -d '\r' | tee first-run.log
-          grep -qx 'BOOTSTRAP_RC=0' first-run.log
+          # Only the prompt matters here, so skip the slow steps. answer-prompts.py
+          # waits for each question before typing, like expect(1).
+          python3 ~/dotfile/tests/answer-prompts.py \
+            'git user.name=CI Bot' 'git user.email=ci@example.com' -- \
+            ~/dotfile/bootstrap.sh --skip-pkgs --skip-tools --skip-nvim --skip-shell --skip-fonts
           test "$(git config --global user.name)"  = "CI Bot"
           test "$(git config --global user.email)" = "ci@example.com"
 
@@ -148,7 +146,7 @@ jobs:
         if: failure()
         run: |
           mkdir -p ci-logs
-          cp first-run.log second-run.log ci-logs/ 2>/dev/null || true
+          cp second-run.log ci-logs/ 2>/dev/null || true
           cp "$HOME"/.local/state/nvim/*.log ci-logs/ 2>/dev/null || true
           cp "$HOME"/.local/share/nvim/mason/mason.log ci-logs/ 2>/dev/null || true
       - uses: actions/upload-artifact@v4
