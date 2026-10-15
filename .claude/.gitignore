@@ -27,3 +27,10 @@ projects/
 
 # Installed plugins (not config)
 plugins/
+
+# Runtime state written by newer Claude Code versions
+.last-update-result.json
+daemon-auth-cooldown
+daemon-auth-status.json
+remote-settings-consent.json
+security/
