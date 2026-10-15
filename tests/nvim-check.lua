@@ -44,8 +44,8 @@ check(vim.fn.has("nvim-0.11") == 1, "Neovim >= 0.11 (running " .. tostring(vim.v
 check(vim.g.mapleader == " ", "mapleader is <Space>")
 check(vim.o.undofile and vim.fn.isdirectory(vim.o.undodir) == 1, "undofile on and undodir exists (" .. vim.o.undodir .. ")")
 check(vim.o.spell, "spell checking enabled by default")
-local spell_add = vim.fn.stdpath("config") .. "/spell/en.utf-8.add"
-check(vim.fn.filereadable(spell_add) == 1, "spell submodule checked out (spell/en.utf-8.add)")
+local spell_spl = vim.fn.stdpath("config") .. "/spell/en.utf-8.add.spl"
+check(vim.fn.filereadable(spell_spl) == 1, "spell submodule checked out (spell/en.utf-8.add.spl)")
 for _, bin in ipairs({ "fd", "rg", "git", "node", "cc" }) do
   check(vim.fn.executable(bin) == 1, "external tool on PATH: " .. bin)
 end

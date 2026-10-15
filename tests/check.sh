@@ -103,7 +103,8 @@ for script in "$DOTFILE"/bin/*; do
     fail "~/.local/bin/$name should be an executable link to bin/$name"
   fi
 done
-check "git submodules checked out" test -s "$DOTFILE/.config/nvim/spell/en.utf-8.add"
+# the spell submodule tracks only the compiled list; en.utf-8.add is ignored there
+check "git submodules checked out" test -s "$DOTFILE/.config/nvim/spell/en.utf-8.add.spl"
 
 # --------------------------------------------------------------------------
 # 2. system packages (apt / Homebrew layer)
@@ -194,7 +195,7 @@ sh_check "zoxide records and queries a directory" \
   "_ZO_DATA_DIR='$TMP/zo' zoxide add '$TMP' && _ZO_DATA_DIR='$TMP/zo' zoxide query '$(basename "$TMP")' | has_line -x '$TMP'"
 sh_check "zoxide init emits the z function"      "zoxide init zsh | has_line __zoxide_z"
 sh_check "atuin opens a fresh history database" \
-  "ATUIN_DB_PATH='$TMP/atuin.db' ATUIN_RECORD_STORE_PATH='$TMP/records.db' atuin history list"
+  "ATUIN_SESSION=dotfile-check ATUIN_DB_PATH='$TMP/atuin.db' ATUIN_RECORD_STORE_PATH='$TMP/records.db' atuin history list"
 sh_check "atuin init emits the Ctrl+R widget"    "atuin init zsh --disable-up-arrow | has_line atuin-search"
 sh_check "delta picks up [delta] from ~/.gitconfig" "delta --show-config | has_line -E '^ *line-numbers += *true'"
 sh_check "lazygit config.yml is valid YAML" \
@@ -241,10 +242,13 @@ print "PROBE_END"
 EOF
 # no config wizard (CI has no ~/.p10k.zsh) and no oh-my-zsh update prompt
 export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true DISABLE_AUTO_UPDATE=true
-ZOUT="$(in_pty "zsh -ic 'source $TMP/probe.zsh'" 2>&1 | tr -d '\r')"
-zget() { printf '%s\n' "$ZOUT" | sed -n "s/^$1=//p" | head -1; }
+# The probe writes its answers to a file. The pty output is kept separately to
+# scan for startup errors; prompt and terminal escapes there can garble lines.
+ZOUT="$(in_pty "zsh -ic 'source $TMP/probe.zsh > $TMP/probe.out'" 2>&1 | tr -d '\r')"
+ZPROBE="$(cat "$TMP/probe.out" 2>/dev/null)"
+zget() { printf '%s\n' "$ZPROBE" | sed -n "s/^$1=//p" | head -1; }
 
-has "interactive zsh starts and runs a command" PROBE_END "$ZOUT"
+has "interactive zsh starts and runs a command" PROBE_END "$ZPROBE"
 noise="$(printf '%s\n' "$ZOUT" | grep -Ei "command not found|no such file|can't change option|parse error|ERROR|permission denied" || true)"
 if [ -z "$noise" ]; then pass "zsh startup printed no errors"
 else fail "zsh startup printed errors"; printf '%s\n' "$noise" | indent; fi
