@@ -293,8 +293,13 @@ fi
 # --------------------------------------------------------------------------
 step "Git identity"
 if [ -z "$(git config --global user.name || true)" ]; then
-  read -rp "    git user.name: " gname  && git config --global user.name  "$gname"
-  read -rp "    git user.email: " gmail && git config --global user.email "$gmail"
+  if [ -t 0 ]; then
+    read -rp "    git user.name: " gname  && git config --global user.name  "$gname"
+    read -rp "    git user.email: " gmail && git config --global user.email "$gmail"
+  else
+    # non-interactive (CI, piped): leave it unset rather than block on read
+    warn "git identity unset and no terminal to ask; run: git config --global user.name/user.email"
+  fi
 fi
 git config --global init.defaultBranch main
 git config --global core.editor nvim
@@ -315,7 +320,7 @@ if [ "$OS" = macos ]; then
     info "added .DS_Store to ~/.config/git/ignore"
   fi
 fi
-info "$(git config --global user.name) <$(git config --global user.email)>"
+info "$(git config --global user.name || echo "<unset>") <$(git config --global user.email || echo unset)>"
 
 # --------------------------------------------------------------------------
 # done

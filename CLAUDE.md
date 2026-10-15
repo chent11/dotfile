@@ -23,6 +23,12 @@ Tools that lack a macOS build upstream (currently only btop) carry `os = ["linux
 
 Platform-conditional bits live in the config files themselves, not the script: `.zshrc` guards Homebrew, mise, cargo and `/etc/zsh_command_not_found`; `.tmux.conf` picks `pbcopy` or `xclip` with `if-shell`.
 
+## Verifying the Setup
+
+`tests/check.sh` checks a provisioned machine end to end: symlinks (parsed from the `link` lines in `bootstrap.sh`), system packages, every tool in the mise config (resolved through a shim and exercised, not just `--version`), an interactive zsh started under a pty (theme, plugins, atuin/fzf/zoxide/mise hooks, aliases), tmux and zellij config loading, git settings, SSH keys and the `.claude/` files. It runs `tests/nvim-check.lua` headlessly, which asserts every lazy.nvim plugin, treesitter parser and Mason package from `lua/config/tools.lua`, makes pyright/clangd/lua_ls attach and report diagnostics, formats with conform, lints with nvim-lint, and verifies the autocmds (commit template, whitespace trim, indent, jsonc). Both are bash 3.2 / stock Neovim and need no sudo; run them after changing anything the bootstrap touches. When a mise tool is added, `check.sh` fails until its binary name is known to `bin_for()`.
+
+`.github/workflows/bootstrap.yml` runs `bootstrap.sh` twice (the second run must change nothing) and then `tests/check.sh` on stock `ubuntu:24.04` and `ubuntu:26.04` containers and on `macos-latest`, on push, PR, weekly and on demand. It needs the `SUBMODULE_TOKEN` repository secret: a fine-grained PAT with read-only Contents on the private submodules `chent11/ssh_pub_keys` and `chent11/vim_spell`.
+
 ## Applying Changes
 
 This repo is maintained as a git-tracked dotfile directory. Edited files here are the source of truth — changes take effect when Neovim is restarted (or `:source %` for Lua files during a session). There is no build step.

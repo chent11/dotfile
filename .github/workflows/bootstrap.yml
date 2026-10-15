@@ -1,0 +1,134 @@
+# Provision clean machines with bootstrap.sh, run it a second time to prove it
+# is idempotent, then verify the result with tests/check.sh.
+#
+# Ubuntu runs inside stock Docker images: the GitHub VM image ships Homebrew,
+# node, python and go, which would hide missing apt packages. macOS has no
+# clean image on hosted runners, so macos-latest is as close as it gets.
+#
+# Required secret: SUBMODULE_TOKEN, a fine-grained personal access token with
+# read-only "Contents" on the private submodules chent11/ssh_pub_keys and
+# chent11/vim_spell. Without it the checkout cannot fetch the submodules.
+name: bootstrap
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1' # weekly: every mise tool is pinned to "latest"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash # -eo pipefail
+
+env:
+  # mise's aqua backend queries the GitHub releases API for every tool; the
+  # anonymous rate limit runs out fast on shared runner addresses.
+  GITHUB_TOKEN: ${{ github.token }}
+  # a fresh machine has no ~/.p10k.zsh; the wizard must never wait for input
+  POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD: 'true'
+
+jobs:
+  ubuntu:
+    name: ${{ matrix.image }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ['ubuntu:24.04', 'ubuntu:26.04'] # previous and current LTS
+    container:
+      image: ${{ matrix.image }}
+    steps:
+      - name: Minimal base packages a stock image lacks before anything can be cloned
+        run: |
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y -qq sudo git curl ca-certificates
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_TOKEN }}
+
+      - name: Rewrite git@github.com URLs to https (runners have no SSH key; the nvim-treesitter fork uses one)
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+      - name: Place the repo at ~/dotfile, where the configs expect it
+        run: ln -s "$GITHUB_WORKSPACE" "$HOME/dotfile"
+
+      - name: bootstrap.sh
+        run: ~/dotfile/bootstrap.sh </dev/null
+
+      - name: bootstrap.sh again (must change nothing)
+        run: |
+          ~/dotfile/bootstrap.sh </dev/null | tee second-run.log
+          if grep -E '^ +(linked|cloned|installed|added|backed up) ' second-run.log; then
+            echo "::error::the second bootstrap run changed state; bootstrap.sh is not idempotent"
+            exit 1
+          fi
+
+      - name: tests/check.sh
+        run: ~/dotfile/tests/check.sh
+
+      - name: Collect logs
+        if: failure()
+        run: |
+          mkdir -p ci-logs
+          cp second-run.log ci-logs/ 2>/dev/null || true
+          cp "$HOME"/.local/state/nvim/*.log ci-logs/ 2>/dev/null || true
+          cp "$HOME"/.local/share/nvim/mason/mason.log ci-logs/ 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: logs-${{ strategy.job-index }}-ubuntu
+          path: ci-logs/
+          if-no-files-found: ignore
+
+  macos:
+    name: macos-latest
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_TOKEN }}
+
+      - name: Rewrite git@github.com URLs to https (runners have no SSH key; the nvim-treesitter fork uses one)
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+      - name: Place the repo at ~/dotfile, where the configs expect it
+        run: ln -s "$GITHUB_WORKSPACE" "$HOME/dotfile"
+
+      - name: bootstrap.sh
+        run: ~/dotfile/bootstrap.sh </dev/null
+
+      - name: bootstrap.sh again (must change nothing)
+        run: |
+          ~/dotfile/bootstrap.sh </dev/null | tee second-run.log
+          if grep -E '^ +(linked|cloned|installed|added|backed up) ' second-run.log; then
+            echo "::error::the second bootstrap run changed state; bootstrap.sh is not idempotent"
+            exit 1
+          fi
+
+      - name: tests/check.sh
+        run: ~/dotfile/tests/check.sh
+
+      - name: Collect logs
+        if: failure()
+        run: |
+          mkdir -p ci-logs
+          cp second-run.log ci-logs/ 2>/dev/null || true
+          cp "$HOME"/.local/state/nvim/*.log ci-logs/ 2>/dev/null || true
+          cp "$HOME"/.local/share/nvim/mason/mason.log ci-logs/ 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: logs-macos
+          path: ci-logs/
+          if-no-files-found: ignore
