@@ -6,16 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a personal dotfile repository for Linux/WSL2 and macOS. It contains:
 - Neovim configuration (`~/.config/nvim/`) — the primary focus of active development
-- Zsh configuration (`~/.zshrc`) with oh-my-zsh + Powerlevel10k, fzf, atuin (history), zoxide (cd)
+- Zsh configuration (`~/.zshrc`) with oh-my-zsh + Powerlevel10k (prompt layout in `.p10k.zsh`), fzf, atuin (history; `.config/atuin/config.toml`), zoxide (cd)
 - Tmux configuration (`~/.tmux.conf`) with custom pane scripts
 - mise tool list (`~/.config/mise/config.toml`) — the single source of truth for user-level tools (neovim, node, tmux, zellij, fzf, tree-sitter, uv, atuin, zoxide, delta, linters)
 - lazygit configuration (`~/.config/lazygit/config.yml`) — OSC 52 clipboard, delta pager
+- Global gitignore (`~/.config/git/ignore`) — `.DS_Store` and Claude Code per-machine files
 - SSH public keys (git submodule)
 - Neovim spell files (git submodule)
 
 ## Fresh Machine Setup
 
-`./bootstrap.sh` provisions a new Ubuntu/Debian or macOS machine: system packages (apt or Homebrew), symlinks into `$HOME`, oh-my-zsh + plugins, mise + `mise install` (every tool in `.config/mise/config.toml`, including Neovim and node), rustup, then `bin/nvim-bootstrap.lua` headlessly installs plugins, parsers and Mason packages from `lua/config/tools.lua`. It is idempotent, bash 3.2 compatible, and backs up anything it replaces to `~/.dotfile-backup/`.
+`./bootstrap.sh` provisions a new Ubuntu/Debian or macOS machine: system packages (apt or Homebrew), symlinks into `$HOME`, oh-my-zsh + plugins, mise + `mise install` (every tool in `.config/mise/config.toml`, including Neovim and node), rustup, then `bin/nvim-bootstrap.lua` headlessly installs plugins, parsers and Mason packages from `lua/config/tools.lua`, then the Meslo Nerd Font (Homebrew cask on macOS, `~/.local/share/fonts` on Linux, skipped with a hint on WSL), then git settings including git-lfs. On a terminal it always asks for git `user.name`/`user.email`, offering the current values as defaults; without a terminal it keeps whatever is set. It is idempotent, bash 3.2 compatible, and backs up anything it replaces to `~/.dotfile-backup/`.
 
 Tools are added with `mise use -g <tool>`, which edits the tracked config through the `~/.config/mise/config.toml` symlink; never hand-install into `~/.local/bin` or `/usr/bin` what mise can provide. `mise upgrade` updates everything pinned to `latest`.
 

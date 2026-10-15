@@ -22,6 +22,7 @@
 #   --skip-tools   do not install mise (and every tool in .config/mise/config.toml)
 #                  or rustup
 #   --skip-shell   do not install oh-my-zsh / change login shell
+#   --skip-fonts   do not install the Meslo Nerd Font
 
 set -euo pipefail
 
@@ -34,13 +35,14 @@ case "$(uname -s)" in
   *) echo "unsupported OS: $(uname -s)" >&2; exit 1 ;;
 esac
 
-SKIP_PKGS=0 SKIP_NVIM=0 SKIP_TOOLS=0 SKIP_SHELL=0
+SKIP_PKGS=0 SKIP_NVIM=0 SKIP_TOOLS=0 SKIP_SHELL=0 SKIP_FONTS=0
 for arg in "$@"; do
   case "$arg" in
     --skip-pkgs|--skip-apt|--skip-brew) SKIP_PKGS=1 ;;
     --skip-nvim)  SKIP_NVIM=1 ;;
     --skip-tools|--skip-langs) SKIP_TOOLS=1 ;;
     --skip-shell) SKIP_SHELL=1 ;;
+    --skip-fonts) SKIP_FONTS=1 ;;
     -h|--help)    sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown flag: $arg" >&2; exit 2 ;;
   esac
@@ -127,7 +129,7 @@ if [ "$SKIP_PKGS" = 0 ]; then
     else
       sudo apt-get update -qq
       sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-        git curl wget unzip jq psmisc ca-certificates \
+        git git-lfs curl wget unzip xz-utils jq psmisc ca-certificates fontconfig \
         build-essential clang \
         zsh command-not-found \
         ripgrep fd-find xclip \
@@ -152,7 +154,7 @@ if [ "$SKIP_PKGS" = 0 ]; then
     # psmisc/xclip are not needed: macOS has fuser and pbcopy built in.
     # btop comes from brew here: upstream has no macOS binaries for mise.
     brew install -q \
-      git curl wget jq \
+      git git-lfs curl wget jq \
       zsh \
       ripgrep fd \
       python go btop
@@ -173,6 +175,7 @@ step "Linking config files into \$HOME"
 mkdir -p "$HOME/.config" "$HOME/.local/bin"
 
 link "$DOTFILE/.zshrc"                            "$HOME/.zshrc"
+link "$DOTFILE/.p10k.zsh"                         "$HOME/.p10k.zsh"
 link "$DOTFILE/.tmux.conf"                        "$HOME/.tmux.conf"
 link "$DOTFILE/.tmux_break_other_panes.sh"        "$HOME/.tmux_break_other_panes.sh"
 link "$DOTFILE/.tmux_handle_pane_intelligently.sh" "$HOME/.tmux_handle_pane_intelligently.sh"
@@ -181,6 +184,8 @@ link "$DOTFILE/.config/zellij/config.kdl"         "$HOME/.config/zellij/config.k
 link "$DOTFILE/.config/zellij/layouts"            "$HOME/.config/zellij/layouts"
 link "$DOTFILE/.config/mise/config.toml"          "$HOME/.config/mise/config.toml"
 link "$DOTFILE/.config/lazygit/config.yml"        "$HOME/.config/lazygit/config.yml"
+link "$DOTFILE/.config/atuin/config.toml"         "$HOME/.config/atuin/config.toml"
+link "$DOTFILE/.config/git/ignore"                "$HOME/.config/git/ignore"
 link "$DOTFILE/.claude"                           "$HOME/.claude"
 
 for script in "$DOTFILE"/bin/*; do
@@ -233,7 +238,6 @@ if [ "$SKIP_SHELL" = 0 ]; then
     if chsh -s "$(command -v zsh)"; then info "login shell set to zsh (takes effect at next login)"
     else warn "chsh failed; run: chsh -s $(command -v zsh)"; fi
   fi
-  [ -f "$HOME/.p10k.zsh" ] || warn "~/.p10k.zsh is not in the repo; run 'p10k configure' on first zsh start"
 else
   step "Skipping shell setup (--skip-shell)"
 fi
@@ -289,17 +293,55 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# 7. git identity (only if unset), editor, delta pager, global ignores
+# 7. Nerd Font for prompt and Neovim icons (Meslo, as used by the terminals
+#    here). Fonts live where the terminal runs: on WSL that is Windows.
+# --------------------------------------------------------------------------
+NERD_FONT_VERSION="v3.5.1"
+if [ "$SKIP_FONTS" = 1 ]; then
+  step "Skipping Nerd Font (--skip-fonts)"
+elif [ "$OS" = macos ]; then
+  step "Installing Meslo Nerd Font (Homebrew cask)"
+  if brew list --cask font-meslo-lg-nerd-font >/dev/null 2>&1; then info "ok      font-meslo-lg-nerd-font"
+  else brew install -q --cask font-meslo-lg-nerd-font; info "installed font-meslo-lg-nerd-font"; fi
+elif grep -qi microsoft /proc/version 2>/dev/null; then
+  step "Nerd Font"
+  warn "WSL: install a Meslo Nerd Font on Windows and select it in Windows Terminal"
+  info "https://github.com/ryanoasis/nerd-fonts/releases/download/$NERD_FONT_VERSION/Meslo.zip"
+else
+  step "Installing Meslo Nerd Font"
+  # grep without -q: an early exit would SIGPIPE fc-list and fail under pipefail
+  if fc-list : family 2>/dev/null | grep -i "MesloLGM.*Nerd Font" >/dev/null; then
+    info "ok      Meslo Nerd Font"
+  else
+    fontdir="$HOME/.local/share/fonts/MesloNerdFont"
+    mkdir -p "$fontdir"
+    curl -fsSL "https://github.com/ryanoasis/nerd-fonts/releases/download/$NERD_FONT_VERSION/Meslo.tar.xz" \
+      | tar -xJ -C "$fontdir"
+    fc-cache -f "$fontdir" >/dev/null
+    info "installed Meslo Nerd Font $NERD_FONT_VERSION -> $fontdir"
+  fi
+fi
+
+# --------------------------------------------------------------------------
+# 8. git: identity (asked every run, current value is the default), editor,
+#    delta pager, LFS. Global ignores come from .config/git/ignore (linked).
 # --------------------------------------------------------------------------
 step "Git identity"
-if [ -z "$(git config --global user.name || true)" ]; then
-  if [ -t 0 ]; then
-    read -rp "    git user.name: " gname  && git config --global user.name  "$gname"
-    read -rp "    git user.email: " gmail && git config --global user.email "$gmail"
-  else
-    # non-interactive (CI, piped): leave it unset rather than block on read
-    warn "git identity unset and no terminal to ask; run: git config --global user.name/user.email"
-  fi
+ask_git() {
+  local key="$1" label="$2" cur val
+  cur="$(git config --global "$key" || true)"
+  read -rp "    $label${cur:+ [$cur]}: " val
+  val="${val:-$cur}"
+  if [ -n "$val" ]; then git config --global "$key" "$val"
+  else warn "$key left unset"; fi
+}
+if [ -t 0 ]; then
+  ask_git user.name  "git user.name"
+  ask_git user.email "git user.email"
+else
+  # non-interactive (CI, piped): keep what is there rather than block on read
+  [ -n "$(git config --global user.name || true)" ] \
+    || warn "git identity unset and no terminal to ask; run: git config --global user.name/user.email"
 fi
 git config --global init.defaultBranch main
 git config --global core.editor nvim
@@ -311,15 +353,10 @@ git config --global delta.line-numbers true
 git config --global delta.dark true
 git config --global merge.conflictStyle zdiff3
 git config --global diff.colorMoved default
-if [ "$OS" = macos ]; then
-  # Finder drops .DS_Store into every directory it opens; ignore it in all repos.
-  # ~/.config/git/ignore is read by git without any core.excludesFile setting.
-  mkdir -p "$HOME/.config/git"
-  if ! grep -qxF ".DS_Store" "$HOME/.config/git/ignore" 2>/dev/null; then
-    printf '.DS_Store\n' >> "$HOME/.config/git/ignore"
-    info "added .DS_Store to ~/.config/git/ignore"
-  fi
-fi
+# allow submodules that point at local paths (git >= 2.38 blocks them by default)
+git config --global protocol.file.allow always
+# LFS filters in ~/.gitconfig; without them LFS repos clone as pointer files
+git lfs install --skip-repo >/dev/null
 info "$(git config --global user.name || echo "<unset>") <$(git config --global user.email || echo unset)>"
 
 # --------------------------------------------------------------------------
@@ -330,8 +367,10 @@ step "Done"
 cat <<'EOT'
     Next steps:
       1. Log out and back in (or run: exec zsh) to start the new login shell.
-      2. Install a Nerd Font in your terminal; the Neovim config uses its icons.
-      3. Run 'p10k configure' if the prompt looks plain.
+      2. Select "MesloLGM Nerd Font" (or MesloLGS) in your terminal's font
+         settings; the prompt and the Neovim config use its icons.
+      3. Sign in where needed: an SSH key for GitHub, 'gh auth login',
+         'claude' for Claude Code.
       4. Optional: 'atuin import zsh' to load an existing ~/.zsh_history, and
          'atuin login' to sync history between machines.
     Updating tools later: 'mise upgrade' moves every "latest" entry in

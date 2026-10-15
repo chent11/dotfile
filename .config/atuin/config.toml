@@ -1,0 +1,6 @@
+# atuin config: only what differs from the defaults.
+# Full reference: https://docs.atuin.sh/configuration/config/
+
+# Enter in the Ctrl+R search runs the selected command right away
+# (Tab puts it on the command line for editing instead).
+enter_accept = true

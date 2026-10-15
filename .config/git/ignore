@@ -1,0 +1,8 @@
+# Global gitignore, read by git without any core.excludesFile setting.
+
+# macOS Finder metadata
+.DS_Store
+
+# Claude Code per-machine state inside any repository
+**/.claude/settings.local.json
+**/.claude/.cc-writes/

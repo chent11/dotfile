@@ -110,11 +110,11 @@ check "git submodules checked out" test -s "$DOTFILE/.config/nvim/spell/en.utf-8
 # 2. system packages (apt / Homebrew layer)
 # --------------------------------------------------------------------------
 section "System packages"
-for t in git curl wget jq zsh rg fd python3 go cc unzip; do
+for t in git git-lfs curl wget jq zsh rg fd python3 go cc unzip; do
   check "$t on PATH" command -v "$t"
 done
 if [ "$OS" = linux ]; then
-  for t in xclip fuser clang; do check "$t on PATH" command -v "$t"; done
+  for t in xclip fuser clang fc-cache xz; do check "$t on PATH" command -v "$t"; done
   check "command-not-found hook present" test -f /etc/zsh_command_not_found
 else
   check "brew on PATH" command -v brew
@@ -196,6 +196,7 @@ sh_check "zoxide records and queries a directory" \
 sh_check "zoxide init emits the z function"      "zoxide init zsh | has_line __zoxide_z"
 sh_check "atuin opens a fresh history database" \
   "ATUIN_SESSION=dotfile-check ATUIN_DB_PATH='$TMP/atuin.db' ATUIN_RECORD_STORE_PATH='$TMP/records.db' atuin history list"
+sh_check "atuin config sets enter_accept" "grep -Eq '^enter_accept *= *true' '$HOME/.config/atuin/config.toml'"
 sh_check "atuin init emits the Ctrl+R widget"    "atuin init zsh --disable-up-arrow | has_line atuin-search"
 sh_check "delta picks up [delta] from ~/.gitconfig" "delta --show-config | has_line -E '^ *line-numbers += *true'"
 sh_check "lazygit config.yml is valid YAML" \
@@ -219,6 +220,7 @@ done
 cat > "$TMP/probe.zsh" <<'EOF'
 print "theme=$ZSH_THEME"
 print "p10k=$( (( $+functions[p10k] )) && print yes || print no)"
+print "p10k_config=$( (( ${#POWERLEVEL9K_LEFT_PROMPT_ELEMENTS} )) && print yes || print no)"
 print "autosuggest=$( (( $+functions[_zsh_autosuggest_start] )) && print yes || print no)"
 print "highlight=$( (( $+functions[_zsh_highlight] )) && print yes || print no)"
 print "gitfast=$( (( $+functions[_git] )) && print yes || print no)"
@@ -254,6 +256,7 @@ if [ -z "$noise" ]; then pass "zsh startup printed no errors"
 else fail "zsh startup printed errors"; printf '%s\n' "$noise" | indent; fi
 eq  "oh-my-zsh theme"                    "powerlevel10k/powerlevel10k" "$(zget theme)"
 eq  "powerlevel10k loaded"               yes "$(zget p10k)"
+eq  "~/.p10k.zsh prompt config applied"  yes "$(zget p10k_config)"
 eq  "zsh-autosuggestions loaded"         yes "$(zget autosuggest)"
 eq  "zsh-syntax-highlighting loaded"     yes "$(zget highlight)"
 eq  "gitfast completion loaded"          yes "$(zget gitfast)"
@@ -325,13 +328,32 @@ eq "diff.colorMoved"        default              "$(git config --global diff.col
 eq "delta.navigate"         true                 "$(git config --global delta.navigate)"
 eq "delta.line-numbers"     true                 "$(git config --global delta.line-numbers)"
 eq "delta.dark"             true                 "$(git config --global delta.dark)"
-[ "$OS" = macos ] && sh_check ".DS_Store in ~/.config/git/ignore" "grep -qx .DS_Store '$HOME/.config/git/ignore'"
+eq "protocol.file.allow"    always               "$(git config --global protocol.file.allow)"
+eq "filter.lfs.process"     "git-lfs filter-process" "$(git config --global filter.lfs.process)"
+eq "filter.lfs.required"    true                 "$(git config --global filter.lfs.required)"
+check "user.name set"  git config --global user.name
+check "user.email set" git config --global user.email
 REPO="$TMP/repo"
 git init -q "$REPO"
 eq "new repositories start on main" refs/heads/main "$(git -C "$REPO" symbolic-ref HEAD)"
 printf 'one\n' > "$REPO/f" && git -C "$REPO" add f \
   && git -C "$REPO" -c user.name=t -c user.email=t@example.com commit -qm init && printf 'two\n' > "$REPO/f"
 sh_check "git diff renders through delta with line numbers" "git -C '$REPO' diff | delta --paging=never | has_line '⋮'"
+for f in .DS_Store sub/.DS_Store .claude/settings.local.json .claude/.cc-writes/x; do
+  check "globally ignored: $f" git -C "$REPO" check-ignore -q --no-index "$f"
+done
+check "not ignored: .claude/settings.json" bash -c "! git -C '$REPO' check-ignore -q --no-index .claude/settings.json"
+LFS="$TMP/lfs"
+git init -q "$LFS"
+sh_check "git lfs stores a tracked file as a pointer" "
+  cd '$LFS'
+  git lfs track '*.bin' >/dev/null
+  head -c 2048 /dev/urandom > blob.bin
+  git add .gitattributes blob.bin
+  git -c user.name=t -c user.email=t@example.com commit -qm lfs
+  git lfs ls-files | has_line blob.bin
+  git cat-file -p HEAD:blob.bin | has_line '^version https://git-lfs'
+"
 eq "git var GIT_EDITOR" nvim "$(env -u VISUAL -u EDITOR -u GIT_EDITOR git var GIT_EDITOR)"
 
 # --------------------------------------------------------------------------
@@ -355,7 +377,21 @@ check ".claude/keybindings.json is valid JSON" jq empty "$DOTFILE/.claude/keybin
 check ".claude/statusline-command.sh parses"   sh -n "$DOTFILE/.claude/statusline-command.sh"
 
 # --------------------------------------------------------------------------
-# 11. Neovim: tests/nvim-check.lua exercises plugins, parsers, LSP, formatting
+# 11. Nerd Font
+# --------------------------------------------------------------------------
+section "Nerd Font"
+if [ "$OS" = macos ]; then
+  check "font-meslo-lg-nerd-font cask installed" brew list --cask font-meslo-lg-nerd-font
+  sh_check "Meslo Nerd Font files present" "ls ~/Library/Fonts /Library/Fonts 2>/dev/null | has_line -i 'MesloLGM.*NerdFont'"
+elif grep -qi microsoft /proc/version 2>/dev/null; then
+  pass "WSL: fonts are installed on the Windows side (not checked)"
+else
+  sh_check "Meslo Nerd Font registered with fontconfig" "fc-list | has_line -i 'MesloLGM.*Nerd Font'"
+  sh_check "Meslo Nerd Font Mono variant available"     "fc-list : family | has_line -i 'MesloLGM Nerd Font Mono'"
+fi
+
+# --------------------------------------------------------------------------
+# 12. Neovim: tests/nvim-check.lua exercises plugins, parsers, LSP, formatting
 # --------------------------------------------------------------------------
 section "Neovim"
 check "nvim runs" nvim --version
