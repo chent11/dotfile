@@ -1,0 +1,22 @@
+# Lazygit user config. Snacks.nvim appends its own theme file after this one,
+# so these settings also apply when lazygit is opened from inside nvim.
+os:
+  # This machine is used over SSH where xclip has no display. Copy through
+  # OSC 52 instead, so the terminal on the client side receives the text.
+  # Inside tmux the sequence has to be wrapped in a passthrough escape
+  # (and tmux needs `set -g allow-passthrough on`). Zellij forwards OSC 52
+  # on its own, so the plain form is used there.
+  copyToClipboardCmd: >
+    if [[ "$TERM" =~ ^(screen|tmux) ]]; then
+
+      printf "\033Ptmux;\033\033]52;c;$(printf '%s' {{text}} | base64 -w 0)\a\033\\" > /dev/tty;
+    else
+
+      printf "\033]52;c;$(printf '%s' {{text}} | base64 -w 0)\a" > /dev/tty;
+    fi
+
+git:
+  diffRenderers:
+    - colorArg: always
+      # delta reads the [delta] section of ~/.gitconfig, so styling stays in one place.
+      command: delta --dark --paging=never

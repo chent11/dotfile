@@ -1,6 +1,6 @@
 # dotfile
 
-Personal dotfiles for Linux / WSL2 and macOS: Neovim, zsh (oh-my-zsh + Powerlevel10k), tmux, zellij, Claude Code settings.
+Personal dotfiles for Linux / WSL2 and macOS: Neovim, zsh (oh-my-zsh + Powerlevel10k), tmux, zellij, lazygit, mise tool list, Claude Code settings.
 
 ## New machine
 
@@ -19,11 +19,12 @@ git clone --recurse-submodules git@github.com:chent11/dotfile.git ~/dotfile
 
 `bootstrap.sh --help` lists the `--skip-*` flags. The script is idempotent; files it replaces in `$HOME` are moved to `~/.dotfile-backup/<timestamp>/`.
 
-On Linux it uses apt, the Neovim AppImage (`bin/neovim-update`) and `cargo install tree-sitter-cli`; on macOS it installs Homebrew if needed and takes neovim, tree-sitter-cli and zellij from there.
+System packages come from apt (Linux) or Homebrew (macOS, installed if needed). Everything else — neovim, node, tmux, zellij, fzf, tree-sitter, uv, atuin, zoxide, delta, linters — is installed by [mise](https://mise.jdx.dev) from `.config/mise/config.toml`, identically on both platforms.
 
-## Updating Neovim
+## Updating tools
 
 ```sh
-neovim-update            # Linux: checks the latest release, verifies sha256, installs to /usr/bin/nvim
-brew upgrade neovim      # macOS
+mise upgrade             # every "latest" entry in .config/mise/config.toml -> newest release
+mise ls                  # what is installed and which config selects it
+mise use -g neovim@nightly   # switch a tool; pin with an exact version instead of "latest"
 ```

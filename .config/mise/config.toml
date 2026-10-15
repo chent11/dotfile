@@ -1,0 +1,24 @@
+[tools]
+atuin = "latest"
+black = "latest"
+btop = "latest"
+delta = "latest"
+fzf = "latest"
+lazygit = "latest"
+neovim = "latest"
+node = "24"
+"npm:typescript" = "latest"
+"npm:typescript-language-server" = "latest"
+"pipx:mypy" = "latest"
+"pipx:pylint" = "latest"
+"pipx:pyright" = "latest"
+pre-commit = "latest"
+ruff = "latest"
+tmux = "latest"
+tree-sitter = "latest"
+uv = "latest"
+zellij = "latest"
+zoxide = "latest"
+
+[settings]
+idiomatic_version_file_enable_tools = ["node"]

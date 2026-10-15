@@ -18,9 +18,10 @@
 #
 # Flags:
 #   --skip-pkgs    do not run apt-get / Homebrew (no sudo, or packages present)
-#   --skip-nvim    do not install Neovim / plugins / LSP servers / parsers
-#   --skip-langs   do not install fnm/node, rustup, tree-sitter-cli
-#   --skip-shell   do not install oh-my-zsh / fzf / change login shell
+#   --skip-nvim    do not provision Neovim plugins / LSP servers / parsers
+#   --skip-tools   do not install mise (and every tool in .config/mise/config.toml)
+#                  or rustup
+#   --skip-shell   do not install oh-my-zsh / change login shell
 
 set -euo pipefail
 
@@ -33,12 +34,12 @@ case "$(uname -s)" in
   *) echo "unsupported OS: $(uname -s)" >&2; exit 1 ;;
 esac
 
-SKIP_PKGS=0 SKIP_NVIM=0 SKIP_LANGS=0 SKIP_SHELL=0
+SKIP_PKGS=0 SKIP_NVIM=0 SKIP_TOOLS=0 SKIP_SHELL=0
 for arg in "$@"; do
   case "$arg" in
     --skip-pkgs|--skip-apt|--skip-brew) SKIP_PKGS=1 ;;
     --skip-nvim)  SKIP_NVIM=1 ;;
-    --skip-langs) SKIP_LANGS=1 ;;
+    --skip-tools|--skip-langs) SKIP_TOOLS=1 ;;
     --skip-shell) SKIP_SHELL=1 ;;
     -h|--help)    sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown flag: $arg" >&2; exit 2 ;;
@@ -90,6 +91,11 @@ load_brew() {
   fi
 }
 
+# mise shims make every mise-managed tool (node, nvim, tree-sitter, ...)
+# resolvable for the rest of this script without an interactive shell
+MISE_SHIMS="$HOME/.local/share/mise/shims"
+export PATH="$MISE_SHIMS:$HOME/.local/bin:$PATH"
+
 # --------------------------------------------------------------------------
 # 0. sanity
 # --------------------------------------------------------------------------
@@ -109,7 +115,9 @@ fi
 git -C "$DOTFILE" submodule update --init --recursive
 
 # --------------------------------------------------------------------------
-# 1. system packages
+# 1. system packages: only what the OS itself should own. Everything with a
+#    pinned or fast-moving version (tmux, zellij, neovim, node, fzf, ...)
+#    comes from mise in step 5 and is listed in .config/mise/config.toml.
 # --------------------------------------------------------------------------
 if [ "$SKIP_PKGS" = 0 ]; then
   if [ "$OS" = linux ]; then
@@ -121,7 +129,7 @@ if [ "$SKIP_PKGS" = 0 ]; then
       sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
         git curl wget unzip jq psmisc ca-certificates \
         build-essential clang \
-        zsh tmux command-not-found \
+        zsh command-not-found \
         ripgrep fd-find xclip \
         python3 python3-pip python3-venv \
         golang-go
@@ -141,15 +149,12 @@ if [ "$SKIP_PKGS" = 0 ]; then
       load_brew
       info "installed Homebrew"
     fi
-    # neovim and tree-sitter-cli come from brew on macOS (the Linux path uses
-    # the AppImage updater and cargo). psmisc/xclip are not needed: macOS has
-    # fuser and pbcopy built in.
+    # psmisc/xclip are not needed: macOS has fuser and pbcopy built in.
     brew install -q \
       git curl wget jq \
-      zsh tmux zellij \
+      zsh \
       ripgrep fd \
-      python go \
-      neovim tree-sitter-cli
+      python go
   fi
 else
   step "Skipping system packages (--skip-pkgs)"
@@ -173,6 +178,8 @@ link "$DOTFILE/.tmux_handle_pane_intelligently.sh" "$HOME/.tmux_handle_pane_inte
 link "$DOTFILE/.config/nvim"                      "$HOME/.config/nvim"
 link "$DOTFILE/.config/zellij/config.kdl"         "$HOME/.config/zellij/config.kdl"
 link "$DOTFILE/.config/zellij/layouts"            "$HOME/.config/zellij/layouts"
+link "$DOTFILE/.config/mise/config.toml"          "$HOME/.config/mise/config.toml"
+link "$DOTFILE/.config/lazygit/config.yml"        "$HOME/.config/lazygit/config.yml"
 link "$DOTFILE/.claude"                           "$HOME/.claude"
 
 for script in "$DOTFILE"/bin/*; do
@@ -202,7 +209,8 @@ for pub in "$DOTFILE"/ssh_pub_keys/*.pub; do
 done
 
 # --------------------------------------------------------------------------
-# 4. shell: oh-my-zsh, plugins, theme, fzf, login shell
+# 4. shell: oh-my-zsh, plugins, theme, login shell
+#    (fzf, atuin and zoxide are mise tools; .zshrc wires them up itself)
 # --------------------------------------------------------------------------
 if [ "$SKIP_SHELL" = 0 ]; then
   step "Setting up zsh"
@@ -220,14 +228,6 @@ if [ "$SKIP_SHELL" = 0 ]; then
   clone_if_missing https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
   clone_if_missing https://github.com/romkatv/powerlevel10k             "$ZSH_CUSTOM/themes/powerlevel10k"
 
-  if [ ! -d "$HOME/.fzf" ]; then
-    git clone -q --depth=1 https://github.com/junegunn/fzf.git "$HOME/.fzf"
-    "$HOME/.fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish >/dev/null
-    info "installed fzf (~/.fzf, sourced via ~/.fzf.zsh)"
-  else
-    info "ok      fzf"
-  fi
-
   if [ "$(basename "${SHELL:-}")" != "zsh" ]; then
     if chsh -s "$(command -v zsh)"; then info "login shell set to zsh (takes effect at next login)"
     else warn "chsh failed; run: chsh -s $(command -v zsh)"; fi
@@ -238,28 +238,23 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# 5. language toolchains the shell and Neovim expect
-#    (Mason needs node for pyright; nvim-treesitter needs tree-sitter-cli
-#     >= 0.26 and a C compiler to build parsers; cargo builds the CLI on Linux
-#     because the apt package is too old)
+# 5. tools: mise installs everything in .config/mise/config.toml (node, neovim,
+#    tmux, zellij, fzf, tree-sitter, uv, linters, ...) side by side under
+#    ~/.local/share/mise and exposes them through shims. rustup stays separate:
+#    mise's rust backend only wraps it, and cargo is wanted for ad-hoc builds.
 # --------------------------------------------------------------------------
-if [ "$SKIP_LANGS" = 0 ]; then
-  step "Installing language toolchains"
-  FNM_DIR="$HOME/.local/share/fnm"
-  if [ ! -x "$FNM_DIR/fnm" ]; then
-    curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "$FNM_DIR" --skip-shell
-    info "installed fnm"
+if [ "$SKIP_TOOLS" = 0 ]; then
+  step "Installing mise and its tools"
+  if [ ! -x "$HOME/.local/bin/mise" ]; then
+    curl -fsSL https://mise.run | MISE_INSTALL_PATH="$HOME/.local/bin/mise" sh
+    info "installed mise $("$HOME/.local/bin/mise" --version)"
   else
-    info "ok      fnm"
+    info "ok      mise $("$HOME/.local/bin/mise" --version)"
   fi
-  export PATH="$FNM_DIR:$PATH"
-  eval "$(fnm env)"
-  if ! have node; then
-    fnm install --lts && fnm default lts-latest
-    info "installed node $(node --version)"
-  else
-    info "ok      node $(node --version)"
-  fi
+  # uv first: the pipx: tools in the config are built with it when present
+  mise install uv
+  mise install
+  mise ls --current --no-header 2>/dev/null | sed 's/^/    /' || true
 
   if [ ! -f "$HOME/.cargo/env" ]; then
     curl -fsSL https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal
@@ -269,48 +264,31 @@ if [ "$SKIP_LANGS" = 0 ]; then
   fi
   # shellcheck disable=SC1091
   . "$HOME/.cargo/env"
-
-  if ! have tree-sitter; then
-    if [ "$OS" = macos ]; then
-      brew install -q tree-sitter-cli
-    else
-      cargo install --quiet tree-sitter-cli
-    fi
-    info "installed tree-sitter-cli $(tree-sitter --version)"
-  else
-    info "ok      tree-sitter-cli $(tree-sitter --version)"
-  fi
 else
-  step "Skipping language toolchains (--skip-langs)"
+  step "Skipping mise tools and rustup (--skip-tools)"
 fi
 
 # --------------------------------------------------------------------------
-# 6. Neovim: binary, plugins, parsers, LSP servers
+# 6. Neovim: plugins, parsers, LSP servers (the binary itself came from mise)
 # --------------------------------------------------------------------------
 if [ "$SKIP_NVIM" = 0 ]; then
-  step "Installing Neovim"
+  step "Provisioning Neovim plugins, parsers and LSP servers (headless)"
   if ! have nvim; then
-    if [ "$OS" = macos ]; then
-      brew install -q neovim
-    else
-      "$DOTFILE/bin/neovim-update" --skip-check   # AppImage -> /usr/bin/nvim
-    fi
-    hash -r
+    echo "nvim not found; it is installed by mise in step 5 (do not combine --skip-tools with a fresh machine)." >&2
+    exit 1
   fi
   info "ok      $(nvim --version | head -1)"
   mkdir -p "$HOME/.nvim/undodir"   # options.lua: opt.undodir
-
-  step "Provisioning Neovim plugins, parsers and LSP servers (headless)"
   for t in node cargo tree-sitter cc; do
     have "$t" || warn "$t not on PATH; some parsers or Mason packages may fail to build"
   done
   nvim --headless -c "luafile $DOTFILE/bin/nvim-bootstrap.lua"
 else
-  step "Skipping Neovim (--skip-nvim)"
+  step "Skipping Neovim provisioning (--skip-nvim)"
 fi
 
 # --------------------------------------------------------------------------
-# 7. git identity (only if unset) and global ignores
+# 7. git identity (only if unset), editor, delta pager, global ignores
 # --------------------------------------------------------------------------
 step "Git identity"
 if [ -z "$(git config --global user.name || true)" ]; then
@@ -319,6 +297,14 @@ if [ -z "$(git config --global user.name || true)" ]; then
 fi
 git config --global init.defaultBranch main
 git config --global core.editor nvim
+# delta (a mise tool) as diff pager; lazygit's config.yml reuses the same [delta] section
+git config --global core.pager delta
+git config --global interactive.diffFilter "delta --color-only"
+git config --global delta.navigate true
+git config --global delta.line-numbers true
+git config --global delta.dark true
+git config --global merge.conflictStyle zdiff3
+git config --global diff.colorMoved default
 if [ "$OS" = macos ]; then
   # Finder drops .DS_Store into every directory it opens; ignore it in all repos.
   # ~/.config/git/ignore is read by git without any core.excludesFile setting.
@@ -335,15 +321,13 @@ info "$(git config --global user.name) <$(git config --global user.email)>"
 # --------------------------------------------------------------------------
 step "Done"
 [ -d "$BACKUP" ] && info "replaced files were moved to $BACKUP"
-cat <<'EOF'
+cat <<'EOT'
     Next steps:
       1. Log out and back in (or run: exec zsh) to start the new login shell.
       2. Install a Nerd Font in your terminal; the Neovim config uses its icons.
       3. Run 'p10k configure' if the prompt looks plain.
-EOF
-if [ "$OS" = linux ]; then
-  cat <<'EOF'
-      4. Optional: tmux 3.7 and zellij were hand-installed into ~/.local/bin on
-         the previous machine; apt's tmux is used until you replace it.
-EOF
-fi
+      4. Optional: 'atuin import zsh' to load an existing ~/.zsh_history, and
+         'atuin login' to sync history between machines.
+    Updating tools later: 'mise upgrade' moves every "latest" entry in
+    .config/mise/config.toml to its newest release.
+EOT
