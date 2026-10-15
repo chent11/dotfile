@@ -58,6 +58,9 @@ jobs:
       - name: Rewrite git@github.com URLs to https (runners have no SSH key; the nvim-treesitter fork uses one)
         run: git config --global url."https://github.com/".insteadOf "git@github.com:"
 
+      - name: Trust the workspace (the container runs as root, the checkout is owned by the runner user)
+        run: git config --global --add safe.directory '*'
+
       - name: Place the repo at ~/dotfile, where the configs expect it
         run: ln -s "$GITHUB_WORKSPACE" "$HOME/dotfile"
 
