@@ -275,7 +275,7 @@ eq  "HISTSIZE"                           50000 "$(zget histsize)"
 eq  "SHARE_HISTORY"                      on "$(zget sharehistory)"
 eq  "mise shims on PATH"                 yes "$(zget shims)"
 has "FZF_DEFAULT_COMMAND uses fd"        "fd --type f" "$(zget fzf_default)"
-eq  "terminal title is the path only"    "%~" "$(zget title)"
+eq  "terminal title is the path, capped"  "%35<…<%~%<<" "$(zget title)"
 for c in _mise _uv _atuin _delta; do
   check "generated completion ~/.cache/zsh/completions/$c" test -s "$HOME/.cache/zsh/completions/$c"
 done
@@ -312,6 +312,19 @@ section "zellij"
 check "zellij runs"                           zellij --version
 check "config.kdl valid (zellij setup --check)" zellij setup --check
 check "layout 'compact' valid"                zellij --layout compact setup --check
+# the compact layout's bar is zellij's compact-bar with tab numbers, fetched by
+# zellij from a release of github.com/chent11/zellij-compact-bar; bootstrap.sh
+# pre-grants its permissions so the one-row bar never shows a permission prompt
+ZBAR=$(sed -n 's/^ *compact-bar location="\(https:[^"]*\)".*/\1/p' "$DOTFILE/.config/zellij/config.kdl")
+has "config.kdl uses a zellij-compact-bar release" \
+  "https://github.com/chent11/zellij-compact-bar/releases/download/" "$ZBAR"
+check "compact-bar release asset downloadable" curl -fsSIL -o /dev/null "$ZBAR"
+case "$(uname -s)" in
+  Darwin) ZPERM="$HOME/Library/Caches/org.Zellij-Contributors.Zellij/permissions.kdl" ;;
+  *)      ZPERM="${XDG_CACHE_HOME:-$HOME/.cache}/zellij/permissions.kdl" ;;
+esac
+sh_check "compact-bar permissions pre-granted" \
+  "grep -A4 -F '\"$ZBAR\" {' '$ZPERM' | grep -q ReadApplicationState"
 check "bin/zellij-keys parses (bash -n)"      bash -n "$DOTFILE/bin/zellij-keys"
 sh_check "zellij-keys prints the prefix bindings" "zellij-keys | has_line 'Prefix: Ctrl ;'"
 

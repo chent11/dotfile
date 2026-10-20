@@ -117,8 +117,10 @@ plugins=(gitfast golang docker kubectl zsh-autosuggestions zsh-syntax-highlighti
 
 source $ZSH/oh-my-zsh.sh
 
-# Terminal/zellij tab title: path only (default is "%n@%m:%~")
-ZSH_THEME_TERM_TITLE_IDLE="%~"
+# Terminal/zellij tab title: path only (default is "%n@%m:%~"), capped at 35
+# chars from the right ("…g3e/rzg3e_cm33_ethos_u_firmware") so one deep path
+# cannot eat the whole zellij tab bar.
+ZSH_THEME_TERM_TITLE_IDLE="%35<…<%~%<<"
 
 # User configuration
 

@@ -181,7 +181,6 @@ link "$DOTFILE/.tmux_break_other_panes.sh"        "$HOME/.tmux_break_other_panes
 link "$DOTFILE/.tmux_handle_pane_intelligently.sh" "$HOME/.tmux_handle_pane_intelligently.sh"
 link "$DOTFILE/.config/nvim"                      "$HOME/.config/nvim"
 link "$DOTFILE/.config/zellij/config.kdl"         "$HOME/.config/zellij/config.kdl"
-link "$DOTFILE/.config/zellij/layouts"            "$HOME/.config/zellij/layouts"
 link "$DOTFILE/.config/mise/config.toml"          "$HOME/.config/mise/config.toml"
 link "$DOTFILE/.config/lazygit/config.yml"        "$HOME/.config/lazygit/config.yml"
 link "$DOTFILE/.config/atuin/config.toml"         "$HOME/.config/atuin/config.toml"
@@ -293,7 +292,33 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# 7. Nerd Font for prompt and Neovim icons (Meslo, as used by the terminals
+# 7. zellij compact-bar: the "compact" layout's bar is zellij's own compact-bar
+#    with tab numbers (github.com/chent11/zellij-compact-bar), fetched by
+#    zellij from the release URL in config.kdl. A plugin loaded from a URL must
+#    be granted permissions and the one-row bar cannot show that prompt, so the
+#    grant is written to zellij's permission cache here.
+# --------------------------------------------------------------------------
+step "Granting zellij permissions to the compact-bar plugin"
+url=$(sed -n 's/^ *compact-bar location="\(https:[^"]*\)".*/\1/p' "$DOTFILE/.config/zellij/config.kdl")
+if [ -z "$url" ]; then
+  warn "no https compact-bar plugin in config.kdl; nothing to grant"
+else
+  case "$OS" in
+    macos) zcache="$HOME/Library/Caches/org.Zellij-Contributors.Zellij" ;;
+    *)     zcache="${XDG_CACHE_HOME:-$HOME/.cache}/zellij" ;;
+  esac
+  perm="$zcache/permissions.kdl"
+  if [ -f "$perm" ] && grep -qF "\"$url\" {" "$perm"; then
+    info "ok      $url"
+  else
+    mkdir -p "$zcache"
+    printf '"%s" {\n    ReadApplicationState\n    ChangeApplicationState\n    MessageAndLaunchOtherPlugins\n    Reconfigure\n}\n' "$url" >> "$perm"
+    info "added   permissions for $url -> $perm"
+  fi
+fi
+
+# --------------------------------------------------------------------------
+# 8. Nerd Font for prompt and Neovim icons (Meslo, as used by the terminals
 #    here). Fonts live where the terminal runs: on WSL that is Windows.
 # --------------------------------------------------------------------------
 NERD_FONT_VERSION="v3.5.1"
@@ -323,7 +348,7 @@ else
 fi
 
 # --------------------------------------------------------------------------
-# 8. git: identity (asked every run, current value is the default), editor,
+# 9. git: identity (asked every run, current value is the default), editor,
 #    delta pager, LFS. Global ignores come from .config/git/ignore (linked).
 # --------------------------------------------------------------------------
 step "Git identity"

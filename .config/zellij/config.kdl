@@ -169,7 +169,7 @@ keybinds clear-defaults=true {
 
 plugins {
     about location="zellij:about"
-    compact-bar location="zellij:compact-bar"
+    compact-bar location="https://github.com/chent11/zellij-compact-bar/releases/download/v0.45.1/compact-bar.wasm"   // zellij's compact-bar + tab numbers (chent11/zellij-compact-bar); bootstrap.sh pre-grants its permissions
     configuration location="zellij:configuration"
     filepicker location="zellij:strider" {
         cwd "/"
